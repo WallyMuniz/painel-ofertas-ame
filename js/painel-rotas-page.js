@@ -1,6 +1,7 @@
 (function () {
   const state = {
     payload: null,
+    route: "all",
     period: "all",
     municipality: "all",
     specialty: "all",
@@ -10,6 +11,42 @@
   const apiBaseUrl = window.PortalConfig?.apiBaseUrl || "";
   const monthLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  const routeDefinitions = {
+    all: {
+      label: "Todas as rotas",
+      description: "Consolidado das Rotas dos Bandeirantes e Mananciais.",
+      cityCount: 15,
+      mapKey: "mapAll",
+      hotspots: {
+        "Pirapora do Bom Jesus": [35, 13], "Santana de Parnaíba": [49, 13], Barueri: [62, 13],
+        Carapicuíba: [70, 19], Osasco: [80, 27], Itapevi: [52, 28], Jandira: [64, 25],
+        Cotia: [45, 42], "Embu das Artes": [57, 42], "Taboão da Serra": [68, 40],
+        "Vargem Grande Paulista": [36, 51], "Itapecerica da Serra": [58, 50], "Embu-Guaçu": [58, 67],
+        "São Lourenço da Serra": [56, 77], Juquitiba: [51, 90],
+      },
+    },
+    bandeirantes: {
+      label: "Rota dos Bandeirantes",
+      description: "Consolidado dos sete municípios da Rota dos Bandeirantes.",
+      cityCount: 7,
+      mapKey: "mapBandeirantes",
+      hotspots: {
+        "Pirapora do Bom Jesus": [14, 45], "Santana de Parnaíba": [36, 43], Barueri: [55, 45],
+        Carapicuíba: [69, 51], Osasco: [85, 63], Itapevi: [45, 67], Jandira: [61, 62],
+      },
+    },
+    mananciais: {
+      label: "Rota dos Mananciais",
+      description: "Consolidado dos oito municípios da Rota dos Mananciais.",
+      cityCount: 8,
+      mapKey: "mapMananciais",
+      hotspots: {
+        Juquitiba: [53.4, 10.8], "São Lourenço da Serra": [53, 29.4], "Embu-Guaçu": [54.2, 45.1],
+        "Embu das Artes": [35.8, 58.6], "Itapecerica da Serra": [52.8, 59.3], "Taboão da Serra": [69.6, 58.9],
+        Cotia: [40.5, 80.6], "Vargem Grande Paulista": [58.6, 79.8],
+      },
+    },
+  };
 
   const numberFormatter = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
   const percentFormatter = new Intl.NumberFormat("pt-BR", {
@@ -19,6 +56,7 @@
   });
 
   const elements = {
+    route: document.getElementById("routeNetworkFilter"),
     period: document.getElementById("routePeriodFilter"),
     municipality: document.getElementById("routeMunicipalityFilter"),
     specialty: document.getElementById("routeSpecialtyFilter"),
@@ -26,6 +64,8 @@
     showAll: document.getElementById("routeShowAllMunicipalities"),
     cityList: document.getElementById("routeCityList"),
     mapStage: document.getElementById("routeMapStage"),
+    mapImage: document.getElementById("routeMapImage"),
+    mapHotspots: document.getElementById("routeMapHotspots"),
     importToggle: document.getElementById("routeImportToggle"),
     importPanel: document.getElementById("routeImportPanel"),
     importAuthForm: document.getElementById("routeImportAuthForm"),
@@ -72,6 +112,15 @@
     return { ...totals, ...rates(totals) };
   }
 
+  function routeSlugForRecord(record) {
+    if (record.routeSlug) return record.routeSlug;
+    return routeDefinitions.bandeirantes.hotspots[record.municipality] ? "bandeirantes" : "mananciais";
+  }
+
+  function filterRoute(records, route = state.route) {
+    return route === "all" ? records : records.filter((record) => routeSlugForRecord(record) === route);
+  }
+
   function filterPeriod(records, period = state.period) {
     if (period === "q1") return records.filter((record) => record.quarter === 1);
     if (period === "q2") return records.filter((record) => record.quarter === 2);
@@ -85,7 +134,7 @@
   function getFilteredRecords(options = {}) {
     const useMunicipality = options.ignoreMunicipality ? "all" : state.municipality;
     const useSpecialty = options.ignoreSpecialty ? "all" : state.specialty;
-    return filterPeriod(state.payload.records, options.period || state.period).filter((record) =>
+    return filterPeriod(filterRoute(state.payload.records), options.period || state.period).filter((record) =>
       (useMunicipality === "all" || record.municipality === useMunicipality) &&
       (useSpecialty === "all" || record.specialty === useSpecialty)
     );
@@ -121,9 +170,10 @@
   }
 
   function populateFilters() {
-    const municipalities = [...new Set(state.payload.records.map((record) => record.municipality))]
+    const routeRecords = filterRoute(state.payload.records);
+    const municipalities = [...new Set(routeRecords.map((record) => record.municipality))]
       .sort((a, b) => a.localeCompare(b, "pt-BR"));
-    const specialties = [...new Set(state.payload.records.map((record) => record.specialty))]
+    const specialties = [...new Set(routeRecords.map((record) => record.specialty))]
       .sort((a, b) => a.localeCompare(b, "pt-BR"));
 
     elements.municipality.innerHTML = '<option value="all">Todos os municípios</option>';
@@ -173,12 +223,13 @@
 
   function renderMap(records) {
     const summary = aggregate(records);
-    const selected = state.municipality === "all" ? "Rota completa" : state.municipality;
+    const routeConfig = routeDefinitions[state.route] || routeDefinitions.all;
+    const selected = state.municipality === "all" ? routeConfig.label : state.municipality;
     setText("routeSelectedTitle", selected);
     setText(
       "routeSelectedDescription",
       state.municipality === "all"
-        ? "Consolidado dos sete municípios da rota assistencial."
+        ? routeConfig.description
         : "Resultado do município no período e especialidade selecionados."
     );
     setText("routeMapOffered", formatNumber(summary.offered));
@@ -186,9 +237,23 @@
     setText("routeMapPrimaryLoss", formatPercent(summary.primaryLossRate));
     setText("routeMapAbsenteeism", formatPercent(summary.absenteeismRate));
 
-    document.querySelectorAll("[data-municipality]").forEach((element) => {
-      element.classList.toggle("is-active", element.dataset.municipality === state.municipality);
-    });
+    const mapSource = elements.mapStage?.dataset?.[routeConfig.mapKey] || elements.mapStage?.dataset?.mapAll || "";
+    if (elements.mapImage && mapSource) {
+      elements.mapImage.src = mapSource;
+      elements.mapImage.alt = `Mapa de ${routeConfig.label.toLowerCase()}`;
+    }
+    if (elements.mapStage) elements.mapStage.dataset.route = state.route;
+    if (elements.mapHotspots) {
+      elements.mapHotspots.innerHTML = Object.entries(routeConfig.hotspots).map(([municipality, position]) => `
+        <button
+          class="route-map-hotspot${municipality === state.municipality ? " is-active" : ""}"
+          type="button"
+          style="left:${position[0]}%;top:${position[1]}%"
+          data-municipality="${municipality}"
+          aria-label="Selecionar ${municipality}"
+        ><span></span></button>
+      `).join("");
+    }
 
     const cityRecords = getFilteredRecords({ ignoreMunicipality: true });
     const cityGroups = [...groupBy(cityRecords, "municipality")]
@@ -205,7 +270,7 @@
   function renderQuarterComparison() {
     const container = document.getElementById("routeQuarterComparison");
     container.innerHTML = [1, 2].map((quarter) => {
-      let records = filterPeriod(state.payload.records, `q${quarter}`);
+      let records = filterPeriod(filterRoute(state.payload.records), `q${quarter}`);
       if (state.municipality !== "all") records = records.filter((record) => record.municipality === state.municipality);
       if (state.specialty !== "all") records = records.filter((record) => record.specialty === state.specialty);
       const summary = aggregate(records);
@@ -227,7 +292,7 @@
   }
 
   function monthlySeries() {
-    const base = state.payload.records.filter((record) =>
+    const base = filterRoute(state.payload.records).filter((record) =>
       (state.municipality === "all" || record.municipality === state.municipality) &&
       (state.specialty === "all" || record.specialty === state.specialty)
     );
@@ -412,11 +477,17 @@
       const keys = new Set();
       for (const file of files) {
         if (!/\.xls$/i.test(file.name)) throw new Error(`${file.name}: formato inválido.`);
-        const item = window.SirespXlsParser.parse(await file.arrayBuffer(), file.name);
-        const key = `${item.municipality}|${item.competence}`;
-        if (keys.has(key)) throw new Error(`Há mais de um arquivo para ${item.municipality} em ${item.competence}.`);
-        keys.add(key);
-        parsed.push({ ...item, file });
+        const items = window.SirespXlsParser.parseAll(
+          await file.arrayBuffer(),
+          file.name,
+          Number(state.payload.metadata?.year || new Date().getFullYear())
+        );
+        items.forEach((item) => {
+          const key = `${item.municipality}|${item.competence}`;
+          if (keys.has(key)) throw new Error(`Há mais de um arquivo para ${item.municipality} em ${item.competence}.`);
+          keys.add(key);
+          parsed.push({ ...item, file });
+        });
       }
       importState.items = parsed;
       renderImportPreview();
@@ -550,6 +621,13 @@
   }
 
   function bindEvents() {
+    elements.route.addEventListener("change", () => {
+      state.route = elements.route.value;
+      state.municipality = "all";
+      state.specialty = "all";
+      populateFilters();
+      render();
+    });
     elements.period.addEventListener("change", () => {
       state.period = elements.period.value;
       render();
@@ -561,9 +639,11 @@
     });
     elements.clear.addEventListener("click", () => {
       state.period = "all";
+      state.route = "all";
       state.municipality = "all";
       state.specialty = "all";
       elements.period.value = "all";
+      elements.route.value = "all";
       elements.municipality.value = "all";
       elements.specialty.value = "all";
       render();
