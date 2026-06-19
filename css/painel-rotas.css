@@ -316,6 +316,57 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
   color: #b52b35;
 }
 
+.route-delete-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, .8fr) minmax(520px, 1.2fr);
+  align-items: end;
+  gap: 22px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #dfe7f1;
+}
+
+.route-delete-panel h3 {
+  margin: 0;
+  color: #10203d;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+.route-delete-panel p {
+  margin: 6px 0 0;
+  color: #66758b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.route-delete-controls {
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(150px, .7fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.route-delete-button {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d6424a;
+  border-radius: 6px;
+  background: #fff3f3;
+  color: #b52b35;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.route-delete-button:hover {
+  background: #ffe5e6;
+}
+
+.route-delete-button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
 .route-kpi-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -801,6 +852,7 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
   .route-quarter-card h3 { grid-column: 1 / -1; }
   .route-import-controls { grid-template-columns: 1fr 1fr; }
   .route-import-file-field { grid-column: 1 / -1; }
+  .route-delete-panel { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 680px) {
@@ -812,6 +864,7 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
   .route-filters { grid-template-columns: 1fr; }
   .route-import-auth,
   .route-import-controls { grid-template-columns: 1fr; }
+  .route-delete-controls { grid-template-columns: 1fr; }
   .route-import-file-field { grid-column: auto; }
   .route-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-map-stage,
