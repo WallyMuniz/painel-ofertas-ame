@@ -77,6 +77,10 @@
     importPreview: document.getElementById("routeImportPreview"),
     importPreviewBody: document.getElementById("routeImportPreviewBody"),
     importFeedback: document.getElementById("routeImportFeedback"),
+    deletePanel: document.getElementById("routeDeletePanel"),
+    deleteMunicipality: document.getElementById("routeDeleteMunicipality"),
+    deleteCompetence: document.getElementById("routeDeleteCompetence"),
+    deleteCompetenceButton: document.getElementById("routeDeleteCompetenceButton"),
   };
 
   function sum(records) {
@@ -408,11 +412,48 @@
     return typeof appUtils.getUnifiedSession === "function" ? appUtils.getUnifiedSession() : {};
   }
 
+  function isAdminSession(session = currentSession()) {
+    return (session.permissoes || []).some((permission) => String(permission).toLowerCase() === "admin");
+  }
+
+  function populateDeleteCompetences() {
+    if (!elements.deleteMunicipality || !elements.deleteCompetence || !state.payload) return;
+    const municipality = elements.deleteMunicipality.value;
+    const competences = [...new Set(
+      state.payload.records
+        .filter((record) => record.municipality === municipality)
+        .map((record) => `${record.year}-${String(record.month).padStart(2, "0")}`)
+    )].sort().reverse();
+    elements.deleteCompetence.innerHTML = competences.length
+      ? competences.map((competence) => {
+          const [year, month] = competence.split("-");
+          return `<option value="${competence}">${monthNames[Number(month) - 1]} / ${year}</option>`;
+        }).join("")
+      : '<option value="">Nenhuma competência disponível</option>';
+    if (elements.deleteCompetenceButton) elements.deleteCompetenceButton.disabled = !competences.length;
+  }
+
+  function populateDeleteOptions() {
+    if (!elements.deleteMunicipality || !state.payload) return;
+    const previous = elements.deleteMunicipality.value;
+    const municipalities = [...new Set(state.payload.records.map((record) => record.municipality))]
+      .sort((a, b) => a.localeCompare(b, "pt-BR"));
+    elements.deleteMunicipality.innerHTML = municipalities
+      .map((municipality) => `<option value="${municipality}">${municipality}</option>`)
+      .join("");
+    if (municipalities.includes(previous)) elements.deleteMunicipality.value = previous;
+    populateDeleteCompetences();
+  }
+
   function showImportAccess() {
     const session = currentSession();
     const authenticated = Boolean(session.token);
     elements.importAuthForm.hidden = authenticated;
     elements.importWorkspace.hidden = !authenticated;
+    if (elements.deletePanel) {
+      elements.deletePanel.hidden = !authenticated || !isAdminSession(session);
+      if (!elements.deletePanel.hidden) populateDeleteOptions();
+    }
     setImportFeedback(
       authenticated
         ? `Sessão ativa para ${session.label || session.username || "usuário autorizado"}.`
@@ -507,6 +548,7 @@
     state.payload = await response.json();
     populatePeriodFilter();
     populateFilters();
+    if (elements.deletePanel && !elements.deletePanel.hidden) populateDeleteOptions();
     const lastMonth = Number(state.payload.metadata?.lastClosedMonth || 0);
     setText(
       "routeScopeBadge",
@@ -595,6 +637,57 @@
     }
   }
 
+  async function deleteCompetence() {
+    const session = currentSession();
+    if (!session.token || !isAdminSession(session)) {
+      showImportAccess();
+      setImportFeedback("A exclusão de competência é permitida somente para administradores.", "error");
+      return;
+    }
+    const municipality = elements.deleteMunicipality?.value || "";
+    const competence = elements.deleteCompetence?.value || "";
+    if (!municipality || !competence) {
+      setImportFeedback("Selecione o município e a competência que serão excluídos.", "error");
+      return;
+    }
+    const affected = state.payload.records.filter((record) =>
+      record.municipality === municipality &&
+      Number(record.year) === Number(competence.slice(0, 4)) &&
+      Number(record.month) === Number(competence.slice(5, 7))
+    ).length;
+    const [year, month] = competence.split("-");
+    const label = `${monthNames[Number(month) - 1]} / ${year}`;
+    if (!window.confirm(`Excluir ${affected} registro(s) de ${municipality} em ${label}?`)) return;
+    if (!window.confirm("Confirma a exclusão? Um backup será criado e as planilhas originais permanecerão arquivadas.")) return;
+
+    elements.deleteCompetenceButton.disabled = true;
+    try {
+      setImportFeedback(`Excluindo ${municipality} em ${label}...`);
+      const result = await appUtils.requestJson(
+        `${apiBaseUrl}/api/route-dashboard/delete-competence`,
+        {
+          method: "POST",
+          headers: appUtils.unifiedAuthHeaders(),
+          body: JSON.stringify({ municipality, competence }),
+        },
+        "Não foi possível excluir a competência."
+      );
+      await loadDashboardData();
+      render();
+      populateDeleteOptions();
+      setImportFeedback(
+        `${result.deletedRecords} registro(s) de ${municipality} em ${label} foram excluídos com backup.`,
+        "success"
+      );
+    } catch (error) {
+      setImportFeedback(error.message || "Falha ao excluir a competência.", "error");
+      if (error.status === 401) appUtils.clearUnifiedSession?.();
+      showImportAccess();
+    } finally {
+      if (elements.deleteCompetenceButton) elements.deleteCompetenceButton.disabled = false;
+    }
+  }
+
   async function loginForImport(event) {
     event.preventDefault();
     const username = document.getElementById("routeImportUsername").value.trim();
@@ -659,6 +752,8 @@
     elements.analyzeImports?.addEventListener("click", analyzeImportFiles);
     elements.confirmImports?.addEventListener("click", confirmImports);
     elements.publishDashboard?.addEventListener("click", publishDashboard);
+    elements.deleteMunicipality?.addEventListener("change", populateDeleteCompetences);
+    elements.deleteCompetenceButton?.addEventListener("click", deleteCompetence);
     document.addEventListener("click", (event) => {
       const cityControl = event.target.closest("[data-municipality]");
       if (!cityControl) return;
