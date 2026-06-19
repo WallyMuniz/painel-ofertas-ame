@@ -38,10 +38,21 @@
           <h1>Produção e aproveitamento de vagas por município</h1>
           <p>Leitura integrada de oferta, agendamento, perda primária, realização e absenteísmo da rota assistencial.</p>
         </div>
-        <div class="route-scope" id="routeScopeBadge">Carregando base</div>
+        <div class="route-intro-actions">
+          <div class="route-scope" id="routeScopeBadge">Carregando base</div>
+          <a class="route-public-link" href="https://painel-ofertas-ame.vercel.app" target="_blank" rel="noopener noreferrer">Abrir painel público</a>
+        </div>
       </section>
 
       <section class="route-filters" aria-label="Filtros do painel">
+        <div class="route-filter-field">
+          <label for="routeNetworkFilter">Rota assistencial</label>
+          <select id="routeNetworkFilter">
+            <option value="all">Todas as rotas</option>
+            <option value="bandeirantes">Rota dos Bandeirantes</option>
+            <option value="mananciais">Rota dos Mananciais</option>
+          </select>
+        </div>
         <div class="route-filter-field">
           <label for="routePeriodFilter">Período</label>
           <select id="routePeriodFilter">
@@ -115,21 +126,22 @@
         </div>
 
         <div class="route-map-layout">
-          <div class="route-map-stage" id="routeMapStage">
-            <img src="./img/mapa-rota-ame-2026.png" alt="Mapa dos municípios atendidos pela rota do AME Itapevi">
-            <button class="route-map-hotspot hotspot-pirapora" type="button" data-municipality="Pirapora do Bom Jesus" aria-label="Selecionar Pirapora do Bom Jesus"><span></span></button>
-            <button class="route-map-hotspot hotspot-santana" type="button" data-municipality="Santana de Parnaíba" aria-label="Selecionar Santana de Parnaíba"><span></span></button>
-            <button class="route-map-hotspot hotspot-barueri" type="button" data-municipality="Barueri" aria-label="Selecionar Barueri"><span></span></button>
-            <button class="route-map-hotspot hotspot-carapicuiba" type="button" data-municipality="Carapicuiba" aria-label="Selecionar Carapicuíba"><span></span></button>
-            <button class="route-map-hotspot hotspot-osasco" type="button" data-municipality="Osasco" aria-label="Selecionar Osasco"><span></span></button>
-            <button class="route-map-hotspot hotspot-itapevi" type="button" data-municipality="Itapevi" aria-label="Selecionar Itapevi"><span></span></button>
-            <button class="route-map-hotspot hotspot-jandira" type="button" data-municipality="Jandira" aria-label="Selecionar Jandira"><span></span></button>
+          <div
+            class="route-map-stage"
+            id="routeMapStage"
+            data-route="all"
+            data-map-all="./img/mapa-rotas-completo-2026.png?v=20260619-3"
+            data-map-bandeirantes="../../assets/img/mapa-rota-ame-2026.png?v=20260619-3"
+            data-map-mananciais="./img/mapa-rota-mananciais-2026.png?v=20260619-3"
+          >
+            <img id="routeMapImage" src="./img/mapa-rotas-completo-2026.png?v=20260619-3" alt="Mapa completo das rotas assistenciais do AME Itapevi">
+            <div id="routeMapHotspots"></div>
           </div>
 
           <aside class="route-map-summary" aria-live="polite">
             <span class="route-section-kicker">Recorte selecionado</span>
-            <h3 id="routeSelectedTitle">Rota completa</h3>
-            <p id="routeSelectedDescription">Consolidado dos sete municípios da rota assistencial.</p>
+            <h3 id="routeSelectedTitle">Todas as rotas</h3>
+            <p id="routeSelectedDescription">Consolidado das Rotas dos Bandeirantes e Mananciais.</p>
             <dl class="route-map-metrics">
               <div><dt>Oferta</dt><dd id="routeMapOffered">0</dd></div>
               <div><dt>Realizadas</dt><dd id="routeMapPerformed">0</dd></div>
