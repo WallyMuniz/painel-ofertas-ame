@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-route-data-url="./data/consultas-2026.json">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Ofertas e Absenteísmo - AME Itapevi</title>
+  <link rel="icon" href="./img/favicon.ico">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/painel-rotas.css">
+</head>
+
+<body class="page-route-dashboard page-loaded portal-sidebar-disabled">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="./img/logo-ame.png" alt="Logo AME">
+        <div class="brand-title">
+          <strong>AME - Itapevi</strong>
+          <span>Gestão de Documentos</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <main class="main">
+    <header class="site-header" id="inicio">
+      <div class="site-banner">
+        <div class="site-banner-bg"></div>
+        <div class="site-title">PAINEL DE OFERTAS E ABSENTEÍSMO</div>
+      </div>
+    </header>
+
+    <div class="container route-dashboard-container">
+      <section class="route-intro">
+        <div>
+          <span class="route-kicker">Projeto piloto • Consultas 2026</span>
+          <h1>Produção e aproveitamento de vagas por município</h1>
+          <p>Leitura integrada de oferta, agendamento, perda primária, realização e absenteísmo da rota assistencial.</p>
+        </div>
+        <div class="route-scope" id="routeScopeBadge">Carregando base</div>
+      </section>
+
+      <section class="route-filters" aria-label="Filtros do painel">
+        <div class="route-filter-field">
+          <label for="routePeriodFilter">Período</label>
+          <select id="routePeriodFilter">
+            <option value="all">1º e 2º trimestre</option>
+            <option value="q1">1º trimestre</option>
+            <option value="q2">2º trimestre em andamento</option>
+            <option value="m1">Janeiro</option>
+            <option value="m2">Fevereiro</option>
+            <option value="m3">Março</option>
+            <option value="m4">Abril</option>
+            <option value="m5">Maio</option>
+          </select>
+        </div>
+        <div class="route-filter-field">
+          <label for="routeMunicipalityFilter">Município</label>
+          <select id="routeMunicipalityFilter">
+            <option value="all">Todos os municípios</option>
+          </select>
+        </div>
+        <div class="route-filter-field route-filter-specialty">
+          <label for="routeSpecialtyFilter">Especialidade</label>
+          <select id="routeSpecialtyFilter">
+            <option value="all">Todas as especialidades</option>
+          </select>
+        </div>
+        <button id="routeClearFilters" class="route-clear-button" type="button">Limpar filtros</button>
+      </section>
+
+      
+
+      <section class="route-kpi-grid" aria-label="Resumo do período">
+        <article class="route-kpi route-kpi-blue">
+          <span>Vagas ofertadas</span>
+          <strong id="routeKpiOffered">0</strong>
+          <small id="routeKpiOfferedDetail">Base consolidada</small>
+        </article>
+        <article class="route-kpi route-kpi-indigo">
+          <span>Agendadas sobre a oferta</span>
+          <strong id="routeKpiScheduled">0</strong>
+          <small id="routeKpiScheduledDetail">0% da oferta</small>
+        </article>
+        <article class="route-kpi route-kpi-amber">
+          <span>Perda primária</span>
+          <strong id="routeKpiPrimaryLoss">0%</strong>
+          <small id="routeKpiPrimaryLossDetail">0 vagas não agendadas</small>
+        </article>
+        <article class="route-kpi route-kpi-teal">
+          <span>Agendadas com bolsão</span>
+          <strong id="routeKpiPool">0</strong>
+          <small>Agenda efetivamente formada</small>
+        </article>
+        <article class="route-kpi route-kpi-green">
+          <span>Consultas realizadas</span>
+          <strong id="routeKpiPerformed">0</strong>
+          <small id="routeKpiPerformedDetail">0% dos agendamentos</small>
+        </article>
+        <article class="route-kpi route-kpi-red">
+          <span>Absenteísmo</span>
+          <strong id="routeKpiAbsenteeism">0%</strong>
+          <small id="routeKpiAbsenteeismDetail">0 faltas</small>
+        </article>
+      </section>
+
+      <section class="route-map-section">
+        <div class="route-section-heading">
+          <div>
+            <span class="route-section-kicker">Mapa da rota</span>
+            <h2>Selecione um município</h2>
+          </div>
+          <button id="routeShowAllMunicipalities" class="route-text-button" type="button">Visualizar rota completa</button>
+        </div>
+
+        <div class="route-map-layout">
+          <div class="route-map-stage" id="routeMapStage">
+            <img src="./img/mapa-rota-ame-2026.png" alt="Mapa dos municípios atendidos pela rota do AME Itapevi">
+            <button class="route-map-hotspot hotspot-pirapora" type="button" data-municipality="Pirapora do Bom Jesus" aria-label="Selecionar Pirapora do Bom Jesus"><span></span></button>
+            <button class="route-map-hotspot hotspot-santana" type="button" data-municipality="Santana de Parnaíba" aria-label="Selecionar Santana de Parnaíba"><span></span></button>
+            <button class="route-map-hotspot hotspot-barueri" type="button" data-municipality="Barueri" aria-label="Selecionar Barueri"><span></span></button>
+            <button class="route-map-hotspot hotspot-carapicuiba" type="button" data-municipality="Carapicuiba" aria-label="Selecionar Carapicuíba"><span></span></button>
+            <button class="route-map-hotspot hotspot-osasco" type="button" data-municipality="Osasco" aria-label="Selecionar Osasco"><span></span></button>
+            <button class="route-map-hotspot hotspot-itapevi" type="button" data-municipality="Itapevi" aria-label="Selecionar Itapevi"><span></span></button>
+            <button class="route-map-hotspot hotspot-jandira" type="button" data-municipality="Jandira" aria-label="Selecionar Jandira"><span></span></button>
+          </div>
+
+          <aside class="route-map-summary" aria-live="polite">
+            <span class="route-section-kicker">Recorte selecionado</span>
+            <h3 id="routeSelectedTitle">Rota completa</h3>
+            <p id="routeSelectedDescription">Consolidado dos sete municípios da rota assistencial.</p>
+            <dl class="route-map-metrics">
+              <div><dt>Oferta</dt><dd id="routeMapOffered">0</dd></div>
+              <div><dt>Realizadas</dt><dd id="routeMapPerformed">0</dd></div>
+              <div><dt>Perda primária</dt><dd id="routeMapPrimaryLoss">0%</dd></div>
+              <div><dt>Absenteísmo</dt><dd id="routeMapAbsenteeism">0%</dd></div>
+            </dl>
+            <div class="route-city-list" id="routeCityList"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="route-quarter-section">
+        <div class="route-section-heading">
+          <div>
+            <span class="route-section-kicker">Comparação trimestral</span>
+            <h2>Desempenho consolidado</h2>
+          </div>
+          <span class="route-partial-note">2º trimestre: abril e maio</span>
+        </div>
+        <div class="route-quarter-grid" id="routeQuarterComparison"></div>
+      </section>
+
+      <section class="route-charts-grid">
+        <article class="route-chart-panel">
+          <div class="route-panel-heading">
+            <div>
+              <span class="route-section-kicker">Volume mensal</span>
+              <h2>Oferta, agendamento e realização</h2>
+            </div>
+            <div class="route-chart-legend" aria-label="Legenda">
+              <span><i class="legend-offered"></i>Ofertado</span>
+              <span><i class="legend-scheduled"></i>Agendado</span>
+              <span><i class="legend-performed"></i>Realizado</span>
+            </div>
+          </div>
+          <div class="route-volume-chart" id="routeVolumeChart"></div>
+        </article>
+
+        <article class="route-chart-panel">
+          <div class="route-panel-heading">
+            <div>
+              <span class="route-section-kicker">Taxas mensais</span>
+              <h2>Perda primária e absenteísmo</h2>
+            </div>
+            <div class="route-chart-legend" aria-label="Legenda">
+              <span><i class="legend-loss"></i>Perda primária</span>
+              <span><i class="legend-absence"></i>Absenteísmo</span>
+            </div>
+          </div>
+          <div class="route-rate-chart" id="routeRateChart"></div>
+        </article>
+      </section>
+
+      <section class="route-tables-grid">
+        <article class="route-table-panel">
+          <div class="route-panel-heading">
+            <div>
+              <span class="route-section-kicker">Municípios</span>
+              <h2>Comparativo da rota</h2>
+            </div>
+          </div>
+          <div class="route-table-wrap">
+            <table class="route-table">
+              <thead><tr><th>Município</th><th>Ofertado</th><th>Realizado</th><th>Perda primária</th><th>Absenteísmo</th></tr></thead>
+              <tbody id="routeMunicipalityTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="route-table-panel">
+          <div class="route-panel-heading">
+            <div>
+              <span class="route-section-kicker">Especialidades</span>
+              <h2>Maiores volumes ofertados</h2>
+            </div>
+          </div>
+          <div class="route-table-wrap">
+            <table class="route-table">
+              <thead><tr><th>Especialidade</th><th>Ofertado</th><th>Realizado</th><th>Perda primária</th><th>Absenteísmo</th></tr></thead>
+              <tbody id="routeSpecialtyTable"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="route-methodology">
+        <div>
+          <strong>Perda primária</strong>
+          <span>Quantidade não agendada sobre a oferta ÷ quantidade ofertada × 100.</span>
+        </div>
+        <div>
+          <strong>Absenteísmo</strong>
+          <span>Quantidade de faltas ÷ quantidade agendada com vagas do bolsão × 100.</span>
+        </div>
+        <div>
+          <strong>Fonte</strong>
+          <span>Planilhas municipais de consultas • atualização piloto 2026.</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="./js/painel-rotas-page.js"></script>
+</body>
+</html>
