@@ -1,6 +1,7 @@
 (function () {
   const state = {
     payload: null,
+    serviceType: "consultas",
     route: "all",
     period: "all",
     municipality: "all",
@@ -56,6 +57,7 @@
   });
 
   const elements = {
+    serviceType: document.getElementById("routeServiceTypeFilter"),
     route: document.getElementById("routeNetworkFilter"),
     period: document.getElementById("routePeriodFilter"),
     municipality: document.getElementById("routeMunicipalityFilter"),
@@ -70,6 +72,7 @@
     importPanel: document.getElementById("routeImportPanel"),
     importAuthForm: document.getElementById("routeImportAuthForm"),
     importWorkspace: document.getElementById("routeImportWorkspace"),
+    importType: document.getElementById("routeImportType"),
     importFiles: document.getElementById("routeImportFiles"),
     analyzeImports: document.getElementById("routeAnalyzeImports"),
     confirmImports: document.getElementById("routeConfirmImports"),
@@ -78,6 +81,7 @@
     importPreviewBody: document.getElementById("routeImportPreviewBody"),
     importFeedback: document.getElementById("routeImportFeedback"),
     deletePanel: document.getElementById("routeDeletePanel"),
+    deleteType: document.getElementById("routeDeleteType"),
     deleteMunicipality: document.getElementById("routeDeleteMunicipality"),
     deleteCompetence: document.getElementById("routeDeleteCompetence"),
     deleteCompetenceButton: document.getElementById("routeDeleteCompetenceButton"),
@@ -139,6 +143,7 @@
     const useMunicipality = options.ignoreMunicipality ? "all" : state.municipality;
     const useSpecialty = options.ignoreSpecialty ? "all" : state.specialty;
     return filterPeriod(filterRoute(state.payload.records), options.period || state.period).filter((record) =>
+      (record.serviceType || "consultas") === state.serviceType &&
       (useMunicipality === "all" || record.municipality === useMunicipality) &&
       (useSpecialty === "all" || record.specialty === useSpecialty)
     );
@@ -174,7 +179,8 @@
   }
 
   function populateFilters() {
-    const routeRecords = filterRoute(state.payload.records);
+    const routeRecords = filterRoute(state.payload.records)
+      .filter((record) => (record.serviceType || "consultas") === state.serviceType);
     const municipalities = [...new Set(routeRecords.map((record) => record.municipality))]
       .sort((a, b) => a.localeCompare(b, "pt-BR"));
     const specialties = [...new Set(routeRecords.map((record) => record.specialty))]
@@ -197,7 +203,9 @@
   }
 
   function populatePeriodFilter() {
-    const availableMonths = [...new Set(state.payload.records.map((record) => Number(record.month)))]
+    const availableMonths = [...new Set(state.payload.records
+      .filter((record) => (record.serviceType || "consultas") === state.serviceType)
+      .map((record) => Number(record.month)))]
       .filter((month) => month >= 1 && month <= 12)
       .sort((a, b) => a - b);
     elements.period.innerHTML = `
@@ -274,7 +282,8 @@
   function renderQuarterComparison() {
     const container = document.getElementById("routeQuarterComparison");
     container.innerHTML = [1, 2].map((quarter) => {
-      let records = filterPeriod(filterRoute(state.payload.records), `q${quarter}`);
+      let records = filterPeriod(filterRoute(state.payload.records), `q${quarter}`)
+        .filter((record) => (record.serviceType || "consultas") === state.serviceType);
       if (state.municipality !== "all") records = records.filter((record) => record.municipality === state.municipality);
       if (state.specialty !== "all") records = records.filter((record) => record.specialty === state.specialty);
       const summary = aggregate(records);
@@ -297,6 +306,7 @@
 
   function monthlySeries() {
     const base = filterRoute(state.payload.records).filter((record) =>
+      (record.serviceType || "consultas") === state.serviceType &&
       (state.municipality === "all" || record.municipality === state.municipality) &&
       (state.specialty === "all" || record.specialty === state.specialty)
     );
@@ -388,7 +398,7 @@
         <td class="${rateClass(item.primaryLossRate)}">${formatPercent(item.primaryLossRate)}</td>
         <td class="${rateClass(item.absenteeismRate)}">${formatPercent(item.absenteeismRate)}</td>
       </tr>
-    `).join("") : `<tr><td colspan="5" class="route-empty-state">Nenhuma especialidade encontrada.</td></tr>`;
+    `).join("") : `<tr><td colspan="5" class="route-empty-state">Nenhum procedimento encontrado.</td></tr>`;
   }
 
   function render() {
@@ -419,9 +429,13 @@
   function populateDeleteCompetences() {
     if (!elements.deleteMunicipality || !elements.deleteCompetence || !state.payload) return;
     const municipality = elements.deleteMunicipality.value;
+    const serviceType = elements.deleteType?.value || "consultas";
     const competences = [...new Set(
       state.payload.records
-        .filter((record) => record.municipality === municipality)
+        .filter((record) =>
+          record.municipality === municipality &&
+          (record.serviceType || "consultas") === serviceType
+        )
         .map((record) => `${record.year}-${String(record.month).padStart(2, "0")}`)
     )].sort().reverse();
     elements.deleteCompetence.innerHTML = competences.length
@@ -436,7 +450,10 @@
   function populateDeleteOptions() {
     if (!elements.deleteMunicipality || !state.payload) return;
     const previous = elements.deleteMunicipality.value;
-    const municipalities = [...new Set(state.payload.records.map((record) => record.municipality))]
+    const serviceType = elements.deleteType?.value || "consultas";
+    const municipalities = [...new Set(state.payload.records
+      .filter((record) => (record.serviceType || "consultas") === serviceType)
+      .map((record) => record.municipality))]
       .sort((a, b) => a.localeCompare(b, "pt-BR"));
     elements.deleteMunicipality.innerHTML = municipalities
       .map((municipality) => `<option value="${municipality}">${municipality}</option>`)
@@ -464,6 +481,7 @@
   function existingRecordsFor(item) {
     return state.payload.records.filter((record) =>
       record.municipality === item.municipality &&
+      (record.serviceType || "consultas") === item.serviceType &&
       Number(record.year) === Number(item.competence.slice(0, 4)) &&
       Number(record.month) === Number(item.competence.slice(5, 7))
     ).length;
@@ -487,6 +505,7 @@
       return `
         <tr>
           <td>${item.file.name}</td>
+          <td>${item.serviceType === "exames" ? "Exames" : "Consultas"}</td>
           <td>${item.municipality}</td>
           <td>${item.competence.slice(5, 7)}/${item.competence.slice(0, 4)}</td>
           <td>${formatNumber(item.rows.length)}</td>
@@ -516,6 +535,7 @@
       setImportFeedback("Analisando arquivos SIReSP...");
       const parsed = [];
       const keys = new Set();
+      const serviceType = elements.importType?.value || state.serviceType || "consultas";
       for (const file of files) {
         if (!/\.xls$/i.test(file.name)) throw new Error(`${file.name}: formato inválido.`);
         const items = window.SirespXlsParser.parseAll(
@@ -524,10 +544,10 @@
           Number(state.payload.metadata?.year || new Date().getFullYear())
         );
         items.forEach((item) => {
-          const key = `${item.municipality}|${item.competence}`;
+          const key = `${serviceType}|${item.municipality}|${item.competence}`;
           if (keys.has(key)) throw new Error(`Há mais de um arquivo para ${item.municipality} em ${item.competence}.`);
           keys.add(key);
-          parsed.push({ ...item, file });
+          parsed.push({ ...item, serviceType, file });
         });
       }
       importState.items = parsed;
@@ -544,8 +564,13 @@
     const configuredDataUrl = document.documentElement.dataset.routeDataUrl || "../../assets/data/rotas/consultas-2026.json";
     const separator = configuredDataUrl.includes("?") ? "&" : "?";
     const response = await fetch(`${configuredDataUrl}${separator}v=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error("Não foi possível carregar a base de consultas.");
+    if (!response.ok) throw new Error("Não foi possível carregar a base do painel.");
     state.payload = await response.json();
+    state.payload.records = (state.payload.records || []).map((record) => ({
+      ...record,
+      serviceType: record.serviceType || "consultas",
+      serviceTypeLabel: record.serviceTypeLabel || ((record.serviceType || "consultas") === "exames" ? "Exames" : "Consultas"),
+    }));
     populatePeriodFilter();
     populateFilters();
     if (elements.deletePanel && !elements.deletePanel.hidden) populateDeleteOptions();
@@ -579,6 +604,7 @@
         form.append("sirespFile", item.file, item.file.name);
         form.append("data", JSON.stringify({
           municipality: item.municipality,
+          serviceType: item.serviceType,
           competence: item.competence,
           rows: item.rows,
         }));
@@ -645,6 +671,8 @@
       return;
     }
     const municipality = elements.deleteMunicipality?.value || "";
+    const serviceType = elements.deleteType?.value || "consultas";
+    const serviceLabel = serviceType === "exames" ? "Exames" : "Consultas";
     const competence = elements.deleteCompetence?.value || "";
     if (!municipality || !competence) {
       setImportFeedback("Selecione o município e a competência que serão excluídos.", "error");
@@ -652,12 +680,13 @@
     }
     const affected = state.payload.records.filter((record) =>
       record.municipality === municipality &&
+      (record.serviceType || "consultas") === serviceType &&
       Number(record.year) === Number(competence.slice(0, 4)) &&
       Number(record.month) === Number(competence.slice(5, 7))
     ).length;
     const [year, month] = competence.split("-");
     const label = `${monthNames[Number(month) - 1]} / ${year}`;
-    if (!window.confirm(`Excluir ${affected} registro(s) de ${municipality} em ${label}?`)) return;
+    if (!window.confirm(`Excluir ${affected} registro(s) de ${serviceLabel}, ${municipality}, em ${label}?`)) return;
     if (!window.confirm("Confirma a exclusão? Um backup será criado e as planilhas originais permanecerão arquivadas.")) return;
 
     elements.deleteCompetenceButton.disabled = true;
@@ -668,7 +697,7 @@
         {
           method: "POST",
           headers: appUtils.unifiedAuthHeaders(),
-          body: JSON.stringify({ municipality, competence }),
+          body: JSON.stringify({ municipality, serviceType, competence }),
         },
         "Não foi possível excluir a competência."
       );
@@ -714,6 +743,14 @@
   }
 
   function bindEvents() {
+    elements.serviceType.addEventListener("change", () => {
+      state.serviceType = elements.serviceType.value;
+      state.municipality = "all";
+      state.specialty = "all";
+      populatePeriodFilter();
+      populateFilters();
+      render();
+    });
     elements.route.addEventListener("change", () => {
       state.route = elements.route.value;
       state.municipality = "all";
@@ -731,10 +768,12 @@
       render();
     });
     elements.clear.addEventListener("click", () => {
+      state.serviceType = "consultas";
       state.period = "all";
       state.route = "all";
       state.municipality = "all";
       state.specialty = "all";
+      elements.serviceType.value = "consultas";
       elements.period.value = "all";
       elements.route.value = "all";
       elements.municipality.value = "all";
@@ -752,6 +791,7 @@
     elements.analyzeImports?.addEventListener("click", analyzeImportFiles);
     elements.confirmImports?.addEventListener("click", confirmImports);
 
+    elements.deleteType?.addEventListener("change", populateDeleteOptions);
     elements.deleteMunicipality?.addEventListener("change", populateDeleteCompetences);
     elements.deleteCompetenceButton?.addEventListener("click", deleteCompetence);
     document.addEventListener("click", (event) => {
