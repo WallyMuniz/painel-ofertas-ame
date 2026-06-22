@@ -34,7 +34,7 @@
     <div class="container route-dashboard-container">
       <section class="route-intro">
         <div>
-          <span class="route-kicker">Projeto piloto • Consultas 2026</span>
+          <span class="route-kicker">Projeto piloto • Consultas e exames 2026</span>
           <h1>Produção e aproveitamento de vagas por município</h1>
           <p>Leitura integrada de oferta, agendamento, perda primária, realização e absenteísmo da rota assistencial.</p>
         </div>
@@ -45,6 +45,13 @@
       </section>
 
       <section class="route-filters" aria-label="Filtros do painel">
+        <div class="route-filter-field">
+          <label for="routeServiceTypeFilter">Tipo de atendimento</label>
+          <select id="routeServiceTypeFilter">
+            <option value="consultas">Consultas</option>
+            <option value="exames">Exames</option>
+          </select>
+        </div>
         <div class="route-filter-field">
           <label for="routeNetworkFilter">Rota assistencial</label>
           <select id="routeNetworkFilter">
@@ -105,7 +112,7 @@
           <small>Agenda efetivamente formada</small>
         </article>
         <article class="route-kpi route-kpi-green">
-          <span>Consultas realizadas</span>
+          <span>Atendimentos realizados</span>
           <strong id="routeKpiPerformed">0</strong>
           <small id="routeKpiPerformedDetail">0% dos agendamentos</small>
         </article>
@@ -238,7 +245,7 @@
         </div>
         <div>
           <strong>Fonte</strong>
-          <span>Planilhas municipais de consultas • atualização piloto 2026.</span>
+          <span>Planilhas municipais de consultas e exames • atualização piloto 2026.</span>
         </div>
       </section>
     </div>
