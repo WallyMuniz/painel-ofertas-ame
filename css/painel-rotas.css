@@ -111,7 +111,7 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
 
 .route-filters {
   display: grid;
-  grid-template-columns: 180px 160px 210px minmax(220px, 1fr) auto;
+  grid-template-columns: 160px 180px 160px 200px minmax(220px, 1fr) auto;
   align-items: end;
   gap: 12px;
   padding: 16px;
@@ -220,7 +220,7 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
 
 .route-import-auth {
   display: grid;
-  grid-template-columns: minmax(180px, 260px) minmax(180px, 260px) auto;
+  grid-template-columns: repeat(3, minmax(160px, 240px)) auto;
   align-items: end;
   gap: 10px;
 }
@@ -240,7 +240,7 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
 
 .route-import-controls {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) repeat(3, auto);
+  grid-template-columns: 180px minmax(280px, 1fr) repeat(3, auto);
   align-items: end;
   gap: 10px;
 }
