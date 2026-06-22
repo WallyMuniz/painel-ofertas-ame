@@ -187,7 +187,7 @@
       .sort((a, b) => a.localeCompare(b, "pt-BR"));
 
     elements.municipality.innerHTML = '<option value="all">Todos os municípios</option>';
-    elements.specialty.innerHTML = '<option value="all">Todas as especialidades</option>';
+    elements.specialty.innerHTML = '<option value="all">Todos os procedimentos</option>';
     elements.municipality.insertAdjacentHTML(
       "beforeend",
       municipalities.map((name) => `<option value="${name}">${name}</option>`).join("")
@@ -242,7 +242,7 @@
       "routeSelectedDescription",
       state.municipality === "all"
         ? routeConfig.description
-        : "Resultado do município no período e especialidade selecionados."
+        : "Resultado do município no período e procedimento selecionados."
     );
     setText("routeMapOffered", formatNumber(summary.offered));
     setText("routeMapPerformed", formatNumber(summary.performed));
