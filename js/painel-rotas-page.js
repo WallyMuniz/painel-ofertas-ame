@@ -613,7 +613,7 @@
       setImportFeedback("Sua sessão expirou. Entre novamente para publicar.", "error");
       return;
     }
-    if (!window.confirm("Publicar a versão sanitizada do Painel de Ofertas e Absenteísmo?")) return;
+
     elements.publishDashboard.disabled = true;
     try {
       setImportFeedback("Gerando versão pública sanitizada...");
@@ -751,7 +751,7 @@
     elements.importAuthForm?.addEventListener("submit", loginForImport);
     elements.analyzeImports?.addEventListener("click", analyzeImportFiles);
     elements.confirmImports?.addEventListener("click", confirmImports);
-    elements.publishDashboard?.addEventListener("click", publishDashboard);
+
     elements.deleteMunicipality?.addEventListener("change", populateDeleteCompetences);
     elements.deleteCompetenceButton?.addEventListener("click", deleteCompetence);
     document.addEventListener("click", (event) => {
@@ -771,6 +771,8 @@
       document.querySelector(".route-kpi-grid").innerHTML = `<div class="route-empty-state">${error.message}</div>`;
     }
   }
+
+  window.publishRouteDashboard = publishDashboard;
 
   start();
 })();
