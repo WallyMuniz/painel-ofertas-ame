@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const state = {
     payload: null,
     serviceType: "consultas",
@@ -6,6 +6,7 @@
     period: "all",
     municipality: "all",
     specialty: "all",
+    specialtyExpanded: false,
   };
   const importState = { items: [] };
   const appUtils = window.PortalAppUtils || {};
@@ -62,6 +63,7 @@
     period: document.getElementById("routePeriodFilter"),
     municipality: document.getElementById("routeMunicipalityFilter"),
     specialty: document.getElementById("routeSpecialtyFilter"),
+    specialtyToggle: document.getElementById("routeSpecialtyToggle"),
     clear: document.getElementById("routeClearFilters"),
     showAll: document.getElementById("routeShowAllMunicipalities"),
     cityList: document.getElementById("routeCityList"),
@@ -339,10 +341,10 @@
     const container = document.getElementById("routeRateChart");
     const width = 640;
     const height = 280;
-    const left = 44;
+    const left = 18;
     const right = 18;
-    const top = 24;
-    const bottom = 38;
+    const top = 28;
+    const bottom = 48;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
     const maxRate = Math.max(.1, Math.ceil(Math.max(...series.flatMap((item) => [item.primaryLossRate, item.absenteeismRate])) * 10) / 10);
@@ -351,20 +353,26 @@
     const points = (key) => series.map((item, index) => `${x(index)},${y(item[key])}`).join(" ");
     const grid = [0, .25, .5, .75, 1].map((ratio) => {
       const lineY = top + plotHeight - plotHeight * ratio;
-      return `<line class="route-chart-gridline" x1="${left}" y1="${lineY}" x2="${width - right}" y2="${lineY}"/><text class="route-chart-axis-label" x="2" y="${lineY + 4}">${formatPercent(maxRate * ratio)}</text>`;
+      return `<line class="route-chart-gridline" x1="${left}" y1="${lineY}" x2="${width - right}" y2="${lineY}"/>`;
     }).join("");
     const labels = series.map((item, index) => `<text class="route-chart-axis-label" x="${x(index)}" y="${height - 10}" text-anchor="middle">${item.label}</text>`).join("");
-    const dots = (key, color) => series.map((item, index) => `
-      <circle cx="${x(index)}" cy="${y(item[key])}" r="4" fill="${color}"/>
-      <text class="route-chart-value-label" x="${x(index)}" y="${Math.max(12, y(item[key]) - 9)}" text-anchor="middle">${formatPercent(item[key])}</text>
-    `).join("");
+    const dots = (key, color, position = "above") => series.map((item, index) => {
+      const pointY = y(item[key]);
+      const labelY = position === "below"
+        ? Math.min(height - bottom + 20, pointY + 18)
+        : Math.max(14, pointY - 10);
+      return `
+        <circle cx="${x(index)}" cy="${pointY}" r="4.5" fill="${color}"/>
+        <text class="route-chart-value-label" x="${x(index)}" y="${labelY}" text-anchor="middle">${formatPercent(item[key])}</text>
+      `;
+    }).join("");
     container.innerHTML = `
       <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Evolução mensal da perda primária e do absenteísmo">
         ${grid}
-        <polyline points="${points("primaryLossRate")}" fill="none" stroke="#d88a07" stroke-width="3"/>
-        <polyline points="${points("absenteeismRate")}" fill="none" stroke="#d34b50" stroke-width="3"/>
-        ${dots("primaryLossRate", "#d88a07")}
-        ${dots("absenteeismRate", "#d34b50")}
+        <polyline points="${points("primaryLossRate")}" fill="none" stroke="#f0b429" stroke-width="3"/>
+        <polyline points="${points("absenteeismRate")}" fill="none" stroke="#d71920" stroke-width="3.5"/>
+        ${dots("primaryLossRate", "#f0b429", "below")}
+        ${dots("absenteeismRate", "#d71920", "above")}
         ${labels}
       </svg>
     `;
@@ -386,12 +394,18 @@
       </tr>
     `).join("") : `<tr><td colspan="5" class="route-empty-state">Nenhum município encontrado.</td></tr>`;
 
-    const specialties = [...groupBy(getFilteredRecords({ ignoreSpecialty: true }), "specialty")]
+    const allSpecialties = [...groupBy(getFilteredRecords({ ignoreSpecialty: true }), "specialty")]
       .map(([specialty, records]) => ({ specialty, ...aggregate(records) }))
-      .sort((a, b) => b.offered - a.offered)
-      .slice(0, 12);
-    specialtyBody.innerHTML = specialties.length ? specialties.map((item) => `
-      <tr>
+      .sort((a, b) => b.offered - a.offered);
+    const compactLimit = 12;
+    const specialties = state.specialtyExpanded ? allSpecialties : allSpecialties.slice(0, compactLimit);
+    if (elements.specialtyToggle) {
+      const hasMore = allSpecialties.length > compactLimit;
+      elements.specialtyToggle.hidden = !hasMore;
+      elements.specialtyToggle.textContent = state.specialtyExpanded ? "Ver menos ↑" : `Ver todos (${allSpecialties.length}) ↓`;
+      elements.specialtyToggle.setAttribute("aria-expanded", String(state.specialtyExpanded));
+    }
+    specialtyBody.innerHTML = specialties.length ? specialties.map((item) => `      <tr>
         <td>${item.specialty}</td>
         <td>${formatNumber(item.offered)}</td>
         <td>${formatNumber(item.performed)}</td>
@@ -767,6 +781,12 @@
       state.specialty = elements.specialty.value;
       render();
     });
+    if (elements.specialtyToggle) {
+      elements.specialtyToggle.addEventListener("click", () => {
+        state.specialtyExpanded = !state.specialtyExpanded;
+        renderTables();
+      });
+    }
     elements.clear.addEventListener("click", () => {
       state.serviceType = "consultas";
       state.period = "all";
@@ -816,3 +836,9 @@
 
   start();
 })();
+
+
+
+
+
+
