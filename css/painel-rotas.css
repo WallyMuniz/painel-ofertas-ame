@@ -1,4 +1,4 @@
-body.page-route-dashboard {
+﻿body.page-route-dashboard {
   background: #eef3f8;
   color: #10203d;
 }
@@ -674,8 +674,8 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
 .legend-offered { background: #2458d3; }
 .legend-scheduled { background: #0f8c8c; }
 .legend-performed { background: #168554; }
-.legend-loss { background: #d88a07; }
-.legend-absence { background: #d34b50; }
+.legend-loss { background: #f0b429; }
+.legend-absence { background: #d71920; }
 
 .route-volume-chart {
   display: grid;
@@ -748,11 +748,12 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
 .route-chart-value-label {
   fill: #617087;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .route-chart-value-label {
-  font-size: 9px;
+  fill: #10203d;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -883,3 +884,6 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
   .route-kpi-grid { grid-template-columns: 1fr; }
   .route-map-metrics { grid-template-columns: 1fr; }
 }
+
+
+
