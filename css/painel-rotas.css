@@ -886,4 +886,879 @@ body.page-route-dashboard.portal-sidebar-disabled .site-banner {
 }
 
 
+/* =========================================================
+   DARK MODE — PAINEL DE OFERTAS E ABSENTEÍSMO
+   Portal AME / Enterprise Dark
+   ========================================================= */
 
+html[data-portal-theme="dark"]
+body.page-route-dashboard {
+  color-scheme: dark;
+
+  --route-bg: #0d0d0f;
+
+  --route-surface: #151517;
+  --route-surface-2: #19191c;
+  --route-surface-3: #1e1e21;
+
+  --route-hover: #202024;
+  --route-active: #252529;
+
+  --route-border: rgba(255, 255, 255, .075);
+  --route-border-strong: rgba(255, 255, 255, .12);
+
+  --route-text: #f4f4f5;
+  --route-text-2: #c4c4ca;
+  --route-muted: #8f8f98;
+
+  --route-blue: #8ab4ff;
+  --route-green: #70d6a7;
+  --route-amber: #e6b95c;
+  --route-red: #ef8585;
+  --route-teal: #67d1cf;
+  --route-indigo: #aaa0ff;
+
+  --route-shadow:
+    0 1px 0 rgba(255, 255, 255, .025),
+    0 16px 40px rgba(0, 0, 0, .20);
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, .025),
+      transparent 34rem
+    ),
+    linear-gradient(
+      180deg,
+      #111113 0%,
+      #0d0d0f 48%,
+      #101012 100%
+    );
+
+  color: var(--route-text);
+}
+
+
+/* =========================================================
+   SUPERFÍCIES PRINCIPAIS
+   ========================================================= */
+
+html[data-portal-theme="dark"] :is(
+  .route-intro,
+  .route-filters,
+  .route-import-section,
+  .route-map-section,
+  .route-quarter-section,
+  .route-chart-panel,
+  .route-table-panel,
+  .route-methodology
+) {
+  border-color: var(--route-border);
+
+  background: var(--route-surface);
+
+  color: var(--route-text);
+
+  box-shadow: var(--route-shadow);
+}
+
+
+/* =========================================================
+   TÍTULOS
+   ========================================================= */
+
+html[data-portal-theme="dark"] :is(
+  .route-intro h1,
+  .route-section-heading h2,
+  .route-panel-heading h2,
+  .route-map-summary h3,
+  .route-delete-panel h3
+) {
+  color: var(--route-text);
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-kicker,
+  .route-section-kicker
+) {
+  color: var(--route-blue);
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-intro p,
+  .route-map-summary > p,
+  .route-delete-panel p,
+  .route-empty-state
+) {
+  color: var(--route-text-2);
+}
+
+
+/* =========================================================
+   ESCOPO / AVISOS
+   ========================================================= */
+
+html[data-portal-theme="dark"] :is(
+  .route-scope,
+  .route-partial-note
+) {
+  border-color: rgba(230, 185, 92, .20);
+
+  background: rgba(230, 185, 92, .08);
+
+  color: #e8c87f;
+}
+
+
+/* =========================================================
+   BOTÃO PRINCIPAL
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-public-link {
+  border-color: #f4f4f5;
+
+  background: #1d4ed8;
+
+  color: #111113;
+}
+
+
+html[data-portal-theme="dark"]
+.route-public-link:hover {
+  border-color: #ffffff;
+
+  background: #16378f;
+
+  color: #0d0d0f;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   FILTROS / INPUTS
+   ========================================================= */
+
+html[data-portal-theme="dark"] :is(
+  .route-filter-field label,
+  .route-import-file-field label
+) {
+  color: var(--route-text-2);
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-filter-field select,
+  .route-filter-field input,
+  .route-import-file-field input
+) {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-3);
+
+  color: var(--route-text);
+
+  outline: none;
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-filter-field select,
+  .route-filter-field input,
+  .route-import-file-field input
+):focus {
+  border-color: rgba(138, 180, 255, .45);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(138, 180, 255, .08);
+}
+
+
+html[data-portal-theme="dark"]
+body.page-route-dashboard ::placeholder {
+  color: #73737c;
+
+  opacity: 1;
+}
+
+
+html[data-portal-theme="dark"]
+body.page-route-dashboard option {
+  background: #19191c;
+
+  color: #f4f4f5;
+}
+
+
+/* =========================================================
+   BOTÕES SECUNDÁRIOS
+   ========================================================= */
+
+html[data-portal-theme="dark"] :is(
+  .route-clear-button,
+  .route-text-button
+) {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-3);
+
+  color: var(--route-text-2);
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-clear-button,
+  .route-text-button
+):hover {
+  border-color: var(--route-border-strong);
+
+  background: var(--route-hover);
+
+  color: var(--route-text);
+}
+
+
+/* Importar */
+
+html[data-portal-theme="dark"]
+.route-import-toggle {
+  border-color: #f4f4f5;
+
+  background: #f4f4f5;
+
+  color: #111113;
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-toggle:hover {
+  border-color: #ffffff;
+
+  background: #ffffff;
+}
+
+
+/* Publicar */
+
+html[data-portal-theme="dark"]
+.route-publish-button {
+  border-color: rgba(112, 214, 167, .20);
+
+  background: rgba(112, 214, 167, .08);
+
+  color: #87e4b9;
+}
+
+
+html[data-portal-theme="dark"]
+.route-publish-button:hover {
+  border-color: rgba(112, 214, 167, .36);
+
+  background: rgba(112, 214, 167, .13);
+}
+
+
+/* Excluir */
+
+html[data-portal-theme="dark"]
+.route-delete-button {
+  border-color: rgba(239, 133, 133, .24);
+
+  background: rgba(239, 133, 133, .08);
+
+  color: #f29b9b;
+}
+
+
+html[data-portal-theme="dark"]
+.route-delete-button:hover {
+  border-color: rgba(239, 133, 133, .38);
+
+  background: rgba(239, 133, 133, .13);
+}
+
+
+/* =========================================================
+   IMPORTAÇÃO
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-import-panel {
+  border-color: var(--route-border);
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-preview {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-2);
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-feedback {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-2);
+
+  color: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-feedback.is-success {
+  border-color: rgba(112, 214, 167, .20);
+
+  background: rgba(112, 214, 167, .07);
+
+  color: #87e4b9;
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-feedback.is-error {
+  border-color: rgba(239, 133, 133, .22);
+
+  background: rgba(239, 133, 133, .07);
+
+  color: #f29b9b;
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-status-new {
+  background: rgba(112, 214, 167, .10);
+
+  color: #87e4b9;
+}
+
+
+html[data-portal-theme="dark"]
+.route-import-status-replace {
+  background: rgba(230, 185, 92, .10);
+
+  color: #ecc777;
+}
+
+
+/* =========================================================
+   PAINEL DE EXCLUSÃO
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-delete-panel {
+  border-color: var(--route-border);
+}
+
+
+/* =========================================================
+   KPIs
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-kpi {
+  border-color: var(--route-border);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, .018),
+      transparent
+    ),
+    var(--route-surface-2);
+
+  color: var(--route-text);
+
+  box-shadow: none;
+}
+
+
+html[data-portal-theme="dark"]
+.route-kpi span {
+  color: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-kpi strong {
+  color: var(--route-text);
+}
+
+
+html[data-portal-theme="dark"]
+.route-kpi small {
+  color: var(--route-muted);
+}
+
+
+/* Mantém identidade dos KPIs */
+
+html[data-portal-theme="dark"]
+.route-kpi-blue {
+  border-top-color: #6d9eff;
+}
+
+html[data-portal-theme="dark"]
+.route-kpi-indigo {
+  border-top-color: var(--route-indigo);
+}
+
+html[data-portal-theme="dark"]
+.route-kpi-amber {
+  border-top-color: var(--route-amber);
+}
+
+html[data-portal-theme="dark"]
+.route-kpi-teal {
+  border-top-color: var(--route-teal);
+}
+
+html[data-portal-theme="dark"]
+.route-kpi-green {
+  border-top-color: var(--route-green);
+}
+
+html[data-portal-theme="dark"]
+.route-kpi-red {
+  border-top-color: var(--route-red);
+}
+
+
+/* =========================================================
+   MAPA
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-map-stage {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-2);
+}
+
+
+html[data-portal-theme="dark"]
+.route-map-summary {
+  border-color: var(--route-border);
+}
+
+
+html[data-portal-theme="dark"]
+.route-map-metrics div {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-2);
+}
+
+
+html[data-portal-theme="dark"]
+.route-map-metrics dt {
+  color: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-map-metrics dd {
+  color: var(--route-text);
+}
+
+
+/* =========================================================
+   HOTSPOTS DO MAPA
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-map-hotspot {
+  background: rgba(25, 25, 28, .86);
+
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, .34),
+    0 0 0 1px rgba(255, 255, 255, .06);
+}
+
+
+html[data-portal-theme="dark"]
+.route-map-hotspot span {
+  background: #6d9eff;
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-map-hotspot:hover,
+  .route-map-hotspot.is-active
+) {
+  outline-color: rgba(138, 180, 255, .25);
+
+  background: var(--route-hover);
+}
+
+
+html[data-portal-theme="dark"]
+.route-map-hotspot.is-active span {
+  background: var(--route-red);
+}
+
+
+/* =========================================================
+   LISTA DE MUNICÍPIOS
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-city-button {
+  background: transparent;
+
+  color: var(--route-text-2);
+}
+
+
+html[data-portal-theme="dark"] :is(
+  .route-city-button:hover,
+  .route-city-button.is-active
+) {
+  border-color: var(--route-border-strong);
+
+  background: var(--route-hover);
+
+  color: var(--route-text);
+}
+
+
+html[data-portal-theme="dark"]
+.route-city-button small {
+  color: var(--route-muted);
+}
+
+
+/* =========================================================
+   TRIMESTRES
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-quarter-card {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-2);
+
+  color: var(--route-text);
+}
+
+
+html[data-portal-theme="dark"]
+.route-quarter-card h3 {
+  color: var(--route-text);
+}
+
+
+html[data-portal-theme="dark"]
+.route-quarter-card h3 small {
+  color: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-quarter-metric span {
+  color: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-quarter-metric strong {
+  color: var(--route-text);
+}
+
+
+/* =========================================================
+   GRÁFICOS
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-chart-legend {
+  color: var(--route-text-2);
+}
+
+
+html[data-portal-theme="dark"]
+.route-volume-chart {
+  border-color: var(--route-border);
+}
+
+
+html[data-portal-theme="dark"]
+.route-volume-bar span {
+  color: var(--route-text-2);
+}
+
+
+html[data-portal-theme="dark"]
+.route-volume-month > strong {
+  color: var(--route-text);
+}
+
+
+/* Mantemos as séries distinguíveis */
+
+html[data-portal-theme="dark"]
+.route-bar-offered {
+  background: #6d9eff;
+}
+
+html[data-portal-theme="dark"]
+.route-bar-scheduled {
+  background: var(--route-teal);
+}
+
+html[data-portal-theme="dark"]
+.route-bar-performed {
+  background: var(--route-green);
+}
+
+
+/* SVG */
+
+html[data-portal-theme="dark"]
+.route-chart-gridline {
+  stroke: rgba(255, 255, 255, .075);
+}
+
+
+html[data-portal-theme="dark"]
+.route-chart-axis-label {
+  fill: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-chart-value-label {
+  fill: var(--route-text);
+}
+
+
+/* =========================================================
+   TABELAS
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-table th {
+  border-color: var(--route-border);
+
+  background: var(--route-surface-3);
+
+  color: var(--route-muted);
+}
+
+
+html[data-portal-theme="dark"]
+.route-table td {
+  border-color: var(--route-border);
+
+  color: var(--route-text-2);
+}
+
+
+html[data-portal-theme="dark"]
+.route-table td:first-child {
+  color: var(--route-text);
+}
+
+
+html[data-portal-theme="dark"]
+.route-table tbody tr {
+  background: transparent;
+}
+
+
+html[data-portal-theme="dark"]
+.route-table tbody tr[data-municipality]:hover {
+  background: var(--route-hover);
+}
+
+
+/* =========================================================
+   TAXAS
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-rate-good {
+  color: #87e4b9;
+}
+
+
+html[data-portal-theme="dark"]
+.route-rate-watch {
+  color: #ecc777;
+}
+
+
+html[data-portal-theme="dark"]
+.route-rate-high {
+  color: #f29b9b;
+}
+
+
+/* =========================================================
+   METODOLOGIA
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+.route-methodology strong {
+  color: var(--route-blue);
+}
+
+
+html[data-portal-theme="dark"]
+.route-methodology span {
+  color: var(--route-muted);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+html[data-portal-theme="dark"]
+body.page-route-dashboard {
+  scrollbar-color:
+    #35353a
+    #151517;
+}
+
+
+html[data-portal-theme="dark"]
+body.page-route-dashboard ::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+
+html[data-portal-theme="dark"]
+body.page-route-dashboard ::-webkit-scrollbar-track {
+  background: #151517;
+}
+
+
+html[data-portal-theme="dark"]
+body.page-route-dashboard ::-webkit-scrollbar-thumb {
+  border: 2px solid #151517;
+
+  border-radius: 999px;
+
+  background: #35353a;
+}
+
+
+/* =========================================================
+   THEME TRANSITION
+   Mesmo comportamento da Home / Facilities
+   ========================================================= */
+
+html.theme-transition
+body.page-route-dashboard,
+
+html.theme-transition
+body.page-route-dashboard :is(
+  .route-intro,
+  .route-filters,
+  .route-import-section,
+  .route-map-section,
+  .route-quarter-section,
+  .route-chart-panel,
+  .route-table-panel,
+  .route-methodology,
+  .route-kpi,
+  .route-map-stage,
+  .route-map-metrics div,
+  .route-city-button,
+  .route-quarter-card,
+  .route-import-preview,
+  .route-import-feedback,
+  .route-map-hotspot,
+  .route-table th,
+  .route-table td,
+  input,
+  select,
+  textarea,
+  button
+) {
+  transition:
+    background-color .42s cubic-bezier(.22, 1, .36, 1),
+    background .42s cubic-bezier(.22, 1, .36, 1),
+    border-color .42s cubic-bezier(.22, 1, .36, 1),
+    color .32s ease,
+    box-shadow .42s cubic-bezier(.22, 1, .36, 1),
+    fill .32s ease,
+    stroke .32s ease;
+}
+
+
+/* =========================================================
+   EFEITO DE TROCA DE TEMA
+   ========================================================= */
+
+html.theme-transition
+body.page-route-dashboard::after {
+  content: "";
+
+  position: fixed;
+  z-index: 9998;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(138, 180, 255, .10),
+      transparent 34%
+    );
+
+  opacity: 0;
+
+  animation:
+    route-theme-flash .58s
+    cubic-bezier(.22, 1, .36, 1);
+}
+
+
+@keyframes route-theme-flash {
+
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+
+}
+
+/* =========================================================
+   ACESSIBILIDADE
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html.theme-transition
+  body.page-route-dashboard,
+
+  html.theme-transition
+  body.page-route-dashboard *,
+
+  html.theme-transition
+  body.page-route-dashboard *::before,
+
+  html.theme-transition
+  body.page-route-dashboard *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+}
