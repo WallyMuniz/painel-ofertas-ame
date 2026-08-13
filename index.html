@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel de Ofertas e Absenteísmo - AME Itapevi</title>
+  <title>Painel de Ofertas e AbsenteÃ­smo - AME Itapevi</title>
   <link rel="icon" href="./img/favicon.ico">
-  <link rel="stylesheet" href="./css/base.css?v=20260702-2">
-  <link rel="stylesheet" href="./css/painel-rotas.css?v=20260619-7">
+  <link rel="stylesheet" href="./css/base.css?v=20260804-dark-codex4">
+  <link rel="stylesheet" href="./css/painel-rotas.css?v=20260804-dark-components1">
 </head>
 
 <body class="page-route-dashboard page-loaded portal-sidebar-disabled">
@@ -16,7 +16,7 @@
         <img src="./img/logo-ame.png" alt="Logo AME">
         <div class="brand-title">
           <strong>AME - Itapevi</strong>
-          <span>Gestão de Documentos</span>
+          <span>GestÃ£o de Documentos</span>
         </div>
       </div>
       
@@ -27,20 +27,20 @@
     <header class="site-header" id="inicio">
       <div class="site-banner">
         <div class="site-banner-bg"></div>
-        <div class="site-title">PAINEL DE OFERTAS E ABSENTEÍSMO</div>
+        <div class="site-title">PAINEL DE OFERTAS E ABSENTEÃSMO</div>
       </div>
     </header>
 
     <div class="container route-dashboard-container">
       <section class="route-intro">
         <div>
-          <span class="route-kicker">Projeto piloto • Consultas e exames 2026</span>
-          <h1>Produção e aproveitamento de vagas por município</h1>
-          <p>Leitura integrada de oferta, agendamento, perda primária, realização e absenteísmo da rota assistencial.</p>
+          <span class="route-kicker">Projeto piloto â€¢ Consultas e exames 2026</span>
+          <h1>ProduÃ§Ã£o e aproveitamento de vagas por municÃ­pio</h1>
+          <p>Leitura integrada de oferta, agendamento, perda primÃ¡ria, realizaÃ§Ã£o e absenteÃ­smo da rota assistencial.</p>
         </div>
         <div class="route-intro-actions">
           <div class="route-scope" id="routeScopeBadge">Carregando base</div>
-          
+          <a class="route-public-link" href="https://painel-ofertas-ame.vercel.app" target="_blank" rel="noopener noreferrer">Abrir painel pÃºblico</a>
         </div>
       </section>
 
@@ -61,22 +61,22 @@
           </select>
         </div>
         <div class="route-filter-field">
-          <label for="routePeriodFilter">Período</label>
+          <label for="routePeriodFilter">PerÃ­odo</label>
           <select id="routePeriodFilter">
-            <option value="all">1º e 2º trimestre</option>
-            <option value="q1">1º trimestre</option>
-            <option value="q2">2º trimestre em andamento</option>
+            <option value="all">1Âº e 2Âº trimestre</option>
+            <option value="q1">1Âº trimestre</option>
+            <option value="q2">2Âº trimestre em andamento</option>
             <option value="m1">Janeiro</option>
             <option value="m2">Fevereiro</option>
-            <option value="m3">Março</option>
+            <option value="m3">MarÃ§o</option>
             <option value="m4">Abril</option>
             <option value="m5">Maio</option>
           </select>
         </div>
         <div class="route-filter-field">
-          <label for="routeMunicipalityFilter">Município</label>
+          <label for="routeMunicipalityFilter">MunicÃ­pio</label>
           <select id="routeMunicipalityFilter">
-            <option value="all">Todos os municípios</option>
+            <option value="all">Todos os municÃ­pios</option>
           </select>
         </div>
         <div class="route-filter-field route-filter-specialty">
@@ -90,7 +90,7 @@
 
       
 
-      <section class="route-kpi-grid" aria-label="Resumo do período">
+      <section class="route-kpi-grid" aria-label="Resumo do perÃ­odo">
         <article class="route-kpi route-kpi-blue">
           <span>Vagas ofertadas</span>
           <strong id="routeKpiOffered">0</strong>
@@ -102,12 +102,12 @@
           <small id="routeKpiScheduledDetail">0% da oferta</small>
         </article>
         <article class="route-kpi route-kpi-amber">
-          <span>Perda primária</span>
+          <span>Perda primÃ¡ria</span>
           <strong id="routeKpiPrimaryLoss">0%</strong>
-          <small id="routeKpiPrimaryLossDetail">0 vagas não agendadas</small>
+          <small id="routeKpiPrimaryLossDetail">0 vagas nÃ£o agendadas</small>
         </article>
         <article class="route-kpi route-kpi-teal">
-          <span>Agendadas com bolsão</span>
+          <span>Agendadas com bolsÃ£o</span>
           <strong id="routeKpiPool">0</strong>
           <small>Agenda efetivamente formada</small>
         </article>
@@ -117,7 +117,7 @@
           <small id="routeKpiPerformedDetail">0% dos agendamentos</small>
         </article>
         <article class="route-kpi route-kpi-red">
-          <span>Absenteísmo</span>
+          <span>AbsenteÃ­smo</span>
           <strong id="routeKpiAbsenteeism">0%</strong>
           <small id="routeKpiAbsenteeismDetail">0 faltas</small>
         </article>
@@ -127,7 +127,7 @@
         <div class="route-section-heading">
           <div>
             <span class="route-section-kicker">Mapa da rota</span>
-            <h2>Selecione um município</h2>
+            <h2>Selecione um municÃ­pio</h2>
           </div>
           <button id="routeShowAllMunicipalities" class="route-text-button" type="button">Visualizar rota completa</button>
         </div>
@@ -152,8 +152,8 @@
             <dl class="route-map-metrics">
               <div><dt>Oferta</dt><dd id="routeMapOffered">0</dd></div>
               <div><dt>Realizadas</dt><dd id="routeMapPerformed">0</dd></div>
-              <div><dt>Perda primária</dt><dd id="routeMapPrimaryLoss">0%</dd></div>
-              <div><dt>Absenteísmo</dt><dd id="routeMapAbsenteeism">0%</dd></div>
+              <div><dt>Perda primÃ¡ria</dt><dd id="routeMapPrimaryLoss">0%</dd></div>
+              <div><dt>AbsenteÃ­smo</dt><dd id="routeMapAbsenteeism">0%</dd></div>
             </dl>
             <div class="route-city-list" id="routeCityList"></div>
           </aside>
@@ -163,10 +163,10 @@
       <section class="route-quarter-section">
         <div class="route-section-heading">
           <div>
-            <span class="route-section-kicker">Comparação trimestral</span>
+            <span class="route-section-kicker">ComparaÃ§Ã£o trimestral</span>
             <h2>Desempenho consolidado</h2>
           </div>
-          <span class="route-partial-note">2º trimestre: abril e maio</span>
+          <span class="route-partial-note">2Âº trimestre: abril e maio</span>
         </div>
         <div class="route-quarter-grid" id="routeQuarterComparison"></div>
       </section>
@@ -176,7 +176,7 @@
           <div class="route-panel-heading">
             <div>
               <span class="route-section-kicker">Volume mensal</span>
-              <h2>Oferta, agendamento e realização</h2>
+              <h2>Oferta, agendamento e realizaÃ§Ã£o</h2>
             </div>
             <div class="route-chart-legend" aria-label="Legenda">
               <span><i class="legend-offered"></i>Ofertado</span>
@@ -191,11 +191,11 @@
           <div class="route-panel-heading">
             <div>
               <span class="route-section-kicker">Taxas mensais</span>
-              <h2>Perda primária e absenteísmo</h2>
+              <h2>Perda primÃ¡ria e absenteÃ­smo</h2>
             </div>
             <div class="route-chart-legend" aria-label="Legenda">
-              <span><i class="legend-loss"></i>Perda primária</span>
-              <span><i class="legend-absence"></i>Absenteísmo</span>
+              <span><i class="legend-loss"></i>Perda primÃ¡ria</span>
+              <span><i class="legend-absence"></i>AbsenteÃ­smo</span>
             </div>
           </div>
           <div class="route-rate-chart" id="routeRateChart"></div>
@@ -206,13 +206,13 @@
         <article class="route-table-panel">
           <div class="route-panel-heading">
             <div>
-              <span class="route-section-kicker">Municípios</span>
+              <span class="route-section-kicker">MunicÃ­pios</span>
               <h2>Comparativo da rota</h2>
             </div>
           </div>
           <div class="route-table-wrap">
             <table class="route-table">
-              <thead><tr><th>Município</th><th>Ofertado</th><th>Realizado</th><th>Perda primária</th><th>Absenteísmo</th></tr></thead>
+              <thead><tr><th>MunicÃ­pio</th><th>Ofertado</th><th>Realizado</th><th>Perda primÃ¡ria</th><th>AbsenteÃ­smo</th></tr></thead>
               <tbody id="routeMunicipalityTable"></tbody>
             </table>
           </div>
@@ -224,11 +224,11 @@
               <span class="route-section-kicker">Procedimentos</span>
               <h2>Maiores volumes ofertados</h2>
             </div>
-            <button id="routeSpecialtyToggle" class="route-text-button route-table-toggle" type="button" hidden>Ver todos ↓</button>
+            <button id="routeSpecialtyToggle" class="route-text-button route-table-toggle" type="button" hidden>Ver todos â†“</button>
           </div>
           <div class="route-table-wrap">
             <table class="route-table">
-              <thead><tr><th>Procedimento</th><th>Ofertado</th><th>Realizado</th><th>Perda primária</th><th>Absenteísmo</th></tr></thead>
+              <thead><tr><th>Procedimento</th><th>Ofertado</th><th>Realizado</th><th>Perda primÃ¡ria</th><th>AbsenteÃ­smo</th></tr></thead>
               <tbody id="routeSpecialtyTable"></tbody>
             </table>
           </div>
@@ -237,16 +237,16 @@
 
       <section class="route-methodology">
         <div>
-          <strong>Perda primária</strong>
-          <span>Quantidade não agendada sobre a oferta ÷ quantidade ofertada × 100.</span>
+          <strong>Perda primÃ¡ria</strong>
+          <span>Quantidade nÃ£o agendada sobre a oferta Ã· quantidade ofertada Ã— 100.</span>
         </div>
         <div>
-          <strong>Absenteísmo</strong>
-          <span>Quantidade de faltas ÷ quantidade agendada com vagas do bolsão × 100.</span>
+          <strong>AbsenteÃ­smo</strong>
+          <span>Quantidade de faltas Ã· quantidade agendada com vagas do bolsÃ£o Ã— 100.</span>
         </div>
         <div>
           <strong>Fonte</strong>
-          <span>Planilhas municipais de consultas e exames • atualização piloto 2026.</span>
+          <span>Planilhas municipais de consultas e exames â€¢ atualizaÃ§Ã£o piloto 2026.</span>
         </div>
       </section>
     </div>
@@ -255,10 +255,3 @@
   <script src="./js/painel-rotas-page.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
