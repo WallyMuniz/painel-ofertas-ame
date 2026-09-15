@@ -8,7 +8,7 @@
     specialty: "all",
     specialtyExpanded: false,
   };
-  const importState = { items: [] };
+  const importState = { items: [], reauthRequired: false };
   const appUtils = window.PortalAppUtils || {};
   const apiBaseUrl = window.PortalConfig?.apiBaseUrl || "";
   const monthLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -440,6 +440,49 @@
     return (session.permissoes || []).some((permission) => String(permission).toLowerCase() === "admin");
   }
 
+  function canImport(session = currentSession()) {
+    return Boolean(session.token) && !session.mustChangePassword &&
+      (session.permissoes || []).some((permission) => ["admin", "gerenciar-indicadores"].includes(String(permission).toLowerCase()));
+  }
+
+  function requireImportLogin(message) {
+    importState.reauthRequired = true;
+    document.getElementById("routeImportUsername").value = currentSession().username || "";
+    showImportAccess();
+    setImportFeedback(message + " Os arquivos selecionados e a an\u00e1lise foram preservados.", "error");
+  }
+
+  async function verifyImportAccess() {
+    if (importState.reauthRequired) return false;
+    const session = currentSession();
+    if (!session.token) {
+      requireImportLogin("Entre novamente para importar.");
+      return false;
+    }
+    try {
+      const fresh = await appUtils.requestJson(
+        `${apiBaseUrl}/api/auth/session`,
+        { headers: appUtils.unifiedAuthHeaders() },
+        "N\u00e3o foi poss\u00edvel verificar a sess\u00e3o de importa\u00e7\u00e3o."
+      );
+      if (currentSession().token !== session.token) return false;
+      const verified = { ...fresh, token: session.token };
+      appUtils.setUnifiedSession(verified);
+      if (!canImport(verified)) {
+        requireImportLogin(verified.mustChangePassword
+          ? "Altere a senha na Central de Gest\u00e3o antes de importar."
+          : `A sess\u00e3o de ${verified.username || "este usu\u00e1rio"} n\u00e3o possui permiss\u00e3o de importa\u00e7\u00e3o. Entre novamente para atualizar o acesso.`);
+        return false;
+      }
+      showImportAccess();
+      return true;
+    } catch (error) {
+      if ([401, 403].includes(error.status)) requireImportLogin("A API recusou a sess\u00e3o. Entre novamente com sua conta para importar.");
+      else setImportFeedback(error.message, "error");
+      return false;
+    }
+  }
+
   function populateDeleteCompetences() {
     if (!elements.deleteMunicipality || !elements.deleteCompetence || !state.payload) return;
     const municipality = elements.deleteMunicipality.value;
@@ -478,9 +521,10 @@
 
   function showImportAccess() {
     const session = currentSession();
-    const authenticated = Boolean(session.token);
+    const authenticated = canImport(session) && !importState.reauthRequired;
     elements.importAuthForm.hidden = authenticated;
     elements.importWorkspace.hidden = !authenticated;
+    if (elements.publishDashboard) elements.publishDashboard.hidden = !authenticated || !isAdminSession(session);
     if (elements.deletePanel) {
       elements.deletePanel.hidden = !authenticated || !isAdminSession(session);
       if (!elements.deletePanel.hidden) populateDeleteOptions();
@@ -493,7 +537,7 @@
   }
 
   function existingRecordsFor(item) {
-    return state.payload.records.filter((record) =>
+    return (state.payload?.records || []).filter((record) =>
       record.municipality === item.municipality &&
       (record.serviceType || "consultas") === item.serviceType &&
       Number(record.year) === Number(item.competence.slice(0, 4)) &&
@@ -555,7 +599,7 @@
         const items = window.SirespXlsParser.parseAll(
           await file.arrayBuffer(),
           file.name,
-          Number(state.payload.metadata?.year || new Date().getFullYear())
+          Number(state.payload?.metadata?.year || new Date().getFullYear())
         );
         items.forEach((item) => {
           const key = `${serviceType}|${item.municipality}|${item.competence}`;
@@ -601,6 +645,12 @@
 
   async function confirmImports() {
     if (!importState.items.length) return;
+    if (elements.confirmImports.disabled) return;
+    elements.confirmImports.disabled = true;
+    if (!await verifyImportAccess()) {
+      elements.confirmImports.disabled = false;
+      return;
+    }
     const session = currentSession();
     if (!session.token) {
       showImportAccess();
@@ -637,9 +687,11 @@
       elements.importFiles.value = "";
       renderImportPreview();
     } catch (error) {
-      setImportFeedback(error.message || "Falha ao concluir a importação.", "error");
-      if (error.status === 401) appUtils.clearUnifiedSession?.();
-      showImportAccess();
+      if ([401, 403].includes(error.status)) {
+        requireImportLogin(`Importa\u00e7\u00e3o recusada para ${currentSession().username || "a sess\u00e3o atual"}. ${error.message || "Renove o login para atualizar suas permiss\u00f5es."}`);
+      } else {
+        setImportFeedback(error.message || "Falha ao concluir a importa\u00e7\u00e3o.", "error");
+      }
     } finally {
       elements.confirmImports.disabled = false;
       elements.analyzeImports.disabled = false;
@@ -743,8 +795,9 @@
         "Não foi possível entrar."
       );
       appUtils.setUnifiedSession(session);
+      importState.reauthRequired = false;
       document.getElementById("routeImportPassword").value = "";
-      showImportAccess();
+      await verifyImportAccess();
     } catch (error) {
       setImportFeedback(error.message || "Usuário ou senha inválidos.", "error");
     }
@@ -805,9 +858,15 @@
       const open = elements.importPanel.hidden;
       elements.importPanel.hidden = !open;
       elements.importToggle.setAttribute("aria-expanded", String(open));
-      if (open) showImportAccess();
+      if (open) {
+        showImportAccess();
+        void verifyImportAccess();
+      }
     });
     elements.importAuthForm?.addEventListener("submit", loginForImport);
+    document.getElementById("routeRenewImportLogin")?.addEventListener("click", () => {
+      requireImportLogin("Entre novamente para atualizar a conta e as permiss\u00f5es de importa\u00e7\u00e3o.");
+    });
     elements.analyzeImports?.addEventListener("click", analyzeImportFiles);
     elements.confirmImports?.addEventListener("click", confirmImports);
 
@@ -822,9 +881,9 @@
   }
 
   async function start() {
+    bindEvents();
     try {
       await loadDashboardData();
-      bindEvents();
       render();
     } catch (error) {
       setText("routeScopeBadge", "Falha ao carregar a base");
