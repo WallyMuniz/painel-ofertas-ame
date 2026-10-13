@@ -132,8 +132,7 @@
   }
 
   function filterPeriod(records, period = state.period) {
-    if (period === "q1") return records.filter((record) => record.quarter === 1);
-    if (period === "q2") return records.filter((record) => record.quarter === 2);
+    if (/^q[1-4]$/.test(period)) return records.filter((record) => Math.ceil(Number(record.month) / 3) === Number(period.slice(1)));
     if (/^m\d+$/.test(period)) {
       const month = Number(period.slice(1));
       return records.filter((record) => record.month === month);
@@ -212,8 +211,7 @@
       .sort((a, b) => a - b);
     elements.period.innerHTML = `
       <option value="all">Todos os períodos disponíveis</option>
-      <option value="q1">1º trimestre</option>
-      <option value="q2">2º trimestre</option>
+      ${availableQuarters().map(quarter => `<option value="q${quarter}">${quarter}º trimestre</option>`).join("")}
       ${availableMonths.map((month) => `<option value="m${month}">${monthNames[month - 1]}</option>`).join("")}
     `;
     if (![...elements.period.options].some((option) => option.value === state.period)) state.period = "all";
@@ -281,19 +279,31 @@
     `).join("");
   }
 
+  function availableQuarters(now = new Date()) {
+    const year = Number(state.payload.metadata?.year || now.getFullYear());
+    const months = state.payload.records.map(record => Number(record.month)).filter(month => month >= 1 && month <= 12);
+    const calendarQuarter = year < now.getFullYear() ? 4 : year === now.getFullYear() ? Math.ceil((now.getMonth() + 1) / 3) : 0;
+    const lastQuarter = Math.max(calendarQuarter, ...months.map(month => Math.ceil(month / 3)), 0);
+    return Array.from({length:lastQuarter}, (_, index) => index + 1);
+  }
+
+  function quarterPeriodLabel(quarter, records) {
+    const first = (quarter - 1) * 3 + 1, last = first + 2;
+    const months = [...new Set(records.map(record => Number(record.month)))].filter(month => month >= first && month <= last).sort((a,b) => a-b);
+    const range = `${monthNames[first - 1]} a ${monthNames[last - 1].toLowerCase()}`;
+    return months.length ? `${range} • dados: ${months.map(month => monthLabels[month-1]).join(", ")}` : `${range} • aguardando importação`;
+  }
+
   function renderQuarterComparison() {
     const container = document.getElementById("routeQuarterComparison");
-    container.innerHTML = [1, 2].map((quarter) => {
+    container.innerHTML = availableQuarters().map((quarter) => {
       let records = filterPeriod(filterRoute(state.payload.records), `q${quarter}`)
         .filter((record) => (record.serviceType || "consultas") === state.serviceType);
       if (state.municipality !== "all") records = records.filter((record) => record.municipality === state.municipality);
       if (state.specialty !== "all") records = records.filter((record) => record.specialty === state.specialty);
       const summary = aggregate(records);
-      const lastMonth = Number(state.payload.metadata?.lastClosedMonth || 5);
-      const secondQuarterEnd = Math.min(Math.max(lastMonth, 4), 6);
-      const periodLabel = quarter === 1
-        ? "Janeiro a março • fechado"
-        : `Abril a ${monthNames[secondQuarterEnd - 1].toLowerCase()} • ${secondQuarterEnd >= 6 ? "fechado" : "em andamento"}`;
+      const periodLabel = quarterPeriodLabel(quarter, records);
+      if (!records.length) return `<article class="route-quarter-card"><h3>${quarter}º trimestre<small>${periodLabel}</small></h3><p>Sem dados importados para os filtros selecionados.</p></article>`;
       return `
         <article class="route-quarter-card">
           <h3>${quarter}º trimestre<small>${periodLabel}</small></h3>
@@ -632,15 +642,13 @@
     populatePeriodFilter();
     populateFilters();
     if (elements.deletePanel && !elements.deletePanel.hidden) populateDeleteOptions();
-    const lastMonth = Number(state.payload.metadata?.lastClosedMonth || 0);
+    const lastMonth = Math.max(0, ...state.payload.records.map(record => Number(record.month)).filter(month => month >= 1 && month <= 12));
     setText(
       "routeScopeBadge",
-      lastMonth >= 4
-        ? `1º tri fechado • 2º tri até ${monthNames[Math.min(lastMonth, 12) - 1].toLowerCase()}`
-        : `Base atualizada até ${monthNames[Math.max(lastMonth, 1) - 1].toLowerCase()}`
+      lastMonth ? `Base com registros até ${monthNames[lastMonth - 1].toLowerCase()}` : "Aguardando importação"
     );
     const partialNote = document.querySelector(".route-partial-note");
-    if (partialNote) partialNote.textContent = lastMonth >= 6 ? "2º trimestre fechado" : `2º trimestre: abril a ${monthNames[Math.max(lastMonth, 4) - 1].toLowerCase()}`;
+    if (partialNote) partialNote.textContent = "Trimestres exibidos conforme o calendário do ano da base e os dados importados.";
   }
 
   async function confirmImports() {
