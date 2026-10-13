@@ -1,0 +1,42 @@
+/* Page geometry shared with Cronograma; never applied to print or dialogs. */
+@media screen {
+  :root {
+    --portal-page-max: 1380px;
+    --portal-content-max: 1332px !important;
+    --portal-content-gutter: 24px !important;
+    --portal-page-top: 22px;
+    --portal-page-bottom: 36px;
+  }
+
+  html body.has-sidebar :is(.schedule-page, .cc-page, .satisfaction-page, .nsp-shell, .central-shell),
+  html body.has-sidebar .main > .container {
+    box-sizing: border-box;
+    width: min(var(--portal-page-max), 100%) !important;
+    max-width: var(--portal-page-max) !important;
+    margin: 0 auto !important;
+    padding: var(--portal-page-top) var(--portal-content-gutter) var(--portal-page-bottom) !important;
+  }
+
+  html body.has-sidebar .topbar-inner {
+    box-sizing: border-box;
+    width: min(var(--portal-content-max), calc(100% - 2 * var(--portal-content-gutter))) !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
+  }
+
+  @media (max-width: 700px) {
+    :root {
+      --portal-content-gutter: 14px !important;
+      --portal-page-top: 18px;
+      --portal-page-bottom: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    :root {
+      --portal-content-gutter: 10px !important;
+      --portal-page-top: 14px;
+      --portal-page-bottom: 28px;
+    }
+  }
+}
