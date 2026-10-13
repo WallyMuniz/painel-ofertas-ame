@@ -1998,6 +1998,13 @@ html[data-portal-theme="dark"] .portal-help-result strong {
   gap: 10px;
 }
 
+html[data-portal-theme="dark"] .meta {
+  background: var(--surface-dark);
+  border-color: var(--line-dark);
+  color: var(--text-soft-dark);
+}
+
+
 .badge {
   display: inline-block;
   padding: 3px 8px;
@@ -9927,7 +9934,7 @@ html[data-portal-theme="dark"] #indicatorInlineFillMeta.is-readonly {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
+  min-height: 10px;
   font-size: 12px;
   color: #0f2147;
   line-height: 1.1;
@@ -9935,7 +9942,7 @@ html[data-portal-theme="dark"] #indicatorInlineFillMeta.is-readonly {
 
 .indicator-area-card small {
   display: block;
-  margin-top: 10px;
+  margin-top: 5px;
   color: #5f6f8d;
   font-size: 11px;
 }
@@ -11888,6 +11895,7 @@ button.danger:hover {
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.06em;
+  color: #000;
 }
 .patient-safety-treatment-only .patient-safety-feedback {
   font-size: 13px;
@@ -17001,38 +17009,6 @@ html[data-portal-theme="dark"]
     legend
   ) {
   color: var(--text-primary) !important;
-}
-
-html[data-portal-theme="dark"]
-  :is(
-    p,
-    small,
-    span,
-    li,
-    td,
-    dd,
-    dt,
-    .lead,
-    .muted,
-    .mrr-muted,
-    .subtitle,
-    .meta,
-    .brand-title span,
-    .hero p,
-    .hero-text,
-    .section-title small,
-    .doc-card-process span,
-    .doc-card-field span,
-    .central-module p,
-    .central-link-card span,
-    .central-action p,
-    .central-notification span,
-    .indicator-card p,
-    .commission-card p,
-    .strategic-card p,
-    .home-opas-success-note small
-  ) {
-  color: var(--text-secondary) !important;
 }
 
 html[data-portal-theme="dark"]
