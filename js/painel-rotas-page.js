@@ -313,17 +313,17 @@
 
   function renderQuarterComparison() {
     const container = document.getElementById("routeQuarterComparison");
-    container.innerHTML = availableQuarters().map((quarter) => {
-      let records = filterPeriod(filterRoute(state.payload.records), `q${quarter}`)
-        .filter((record) => (record.serviceType || "consultas") === state.serviceType);
+    const years=[...new Set(state.payload.records.map(record=>Number(record.year || state.payload.metadata?.year || 2026)))].sort();
+    container.innerHTML = years.flatMap(year=>availableQuarters().map(quarter=>({year,quarter}))).map(({year,quarter}) => {
+      let records = filterPeriod(getFilteredRecords({period:"all"}), `y${year}q${quarter}`);
       if (state.municipality !== "all") records = records.filter((record) => matchesSelection(state.municipality, record.municipality));
       if (state.specialty !== "all") records = records.filter((record) => matchesSelection(state.specialty, record.specialty));
       const summary = aggregate(records);
       const periodLabel = quarterPeriodLabel(quarter, records);
-      if (!records.length) return `<article class="route-quarter-card"><h3>${quarter}º trimestre<small>${periodLabel}</small></h3><p>Sem dados importados para os filtros selecionados.</p></article>`;
+      if (!records.length) return `<article class="route-quarter-card"><h3>${quarter}º trimestre / ${year}<small>${periodLabel}</small></h3><p>Sem dados importados para os filtros selecionados.</p></article>`;
       return `
         <article class="route-quarter-card">
-          <h3>${quarter}º trimestre<small>${periodLabel}</small></h3>
+          <h3>${quarter}º trimestre / ${year}<small>${periodLabel}</small></h3>
           <div class="route-quarter-metric"><span>Ofertado</span><strong>${formatNumber(summary.offered)}</strong></div>
           <div class="route-quarter-metric"><span>Realizado</span><strong>${formatNumber(summary.performed)}</strong></div>
           <div class="route-quarter-metric"><span>Perda primária</span><strong class="${rateClass(summary.primaryLossRate)}">${formatPercent(summary.primaryLossRate)}</strong></div>
