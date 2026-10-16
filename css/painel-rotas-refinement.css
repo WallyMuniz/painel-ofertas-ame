@@ -90,3 +90,9 @@ html body.page-route-dashboard .main>.container.route-dashboard-container,
 html body.page-route-dashboard .topbar-inner{width:calc(100% - var(--route-content-gutter)*2)!important;max-width:none!important;margin-inline:auto!important;padding-inline:0!important;box-sizing:border-box}
 html body.page-route-dashboard.has-sidebar .main>.container.route-dashboard-container,
 html body.page-route-dashboard.has-sidebar .topbar-inner{width:calc(100% - var(--route-content-gutter)*2)!important}
+
+/* Give the complete route map the full available canvas. */
+.page-route-dashboard .route-map-layout{grid-template-columns:minmax(0,2.5fr) minmax(260px,.85fr);gap:20px}
+.page-route-dashboard .route-map-stage{width:100%;max-width:none;justify-self:stretch}
+.page-route-dashboard .route-map-picker .route-multi{min-width:240px;font-weight:400}
+@media(max-width:900px){.page-route-dashboard .route-map-layout{grid-template-columns:1fr}.page-route-dashboard .route-map-summary{max-height:none}}

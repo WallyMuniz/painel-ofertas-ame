@@ -833,6 +833,8 @@
   }
 
   function syncFilterControls() {
+    const map=document.getElementById("routeMapMunicipality");
+    if(map)for(const option of map.options)option.selected=state.municipality === "all" ? option.value === "all" : option.value !== "all" && matchesSelection(state.municipality,option.value);
     document.querySelectorAll(".route-segmented button").forEach(button=>button.setAttribute("aria-pressed",String(document.getElementById(button.dataset.select).value===button.dataset.value)));
     document.querySelectorAll(".route-multi").forEach(control=>{
       const select=document.getElementById(control.dataset.select);
@@ -841,15 +843,15 @@
       const list=control.querySelector(".route-multi-options");list.replaceChildren();
       for(const option of select.options){if(option.value==="all")continue;const label=document.createElement("label"),input=document.createElement("input");input.type="checkbox";input.checked=values.some(value=>value.value===option.value);input.addEventListener("change",()=>{option.selected=input.checked;select.options[0].selected=![...select.options].some(o=>o.value!=="all"&&o.selected);select.dispatchEvent(new Event("change"));});label.append(input,document.createTextNode(option.textContent));list.append(label);}
     });
-    const map=document.getElementById("routeMapMunicipality");if(map)map.value=state.municipality.includes("\u001f")?"all":state.municipality;
+
   }
   function setupFilterControls(){
     for(const select of [elements.serviceType,elements.route]){
       const group=document.createElement("div");group.className="route-segmented";group.setAttribute("role","group");group.setAttribute("aria-label",select.previousElementSibling.textContent);
       for(const option of select.options){const button=document.createElement("button");button.type="button";button.textContent=option.textContent.replace("Rota dos ","");button.dataset.select=select.id;button.dataset.value=option.value;button.addEventListener("click",()=>{select.value=option.value;select.dispatchEvent(new Event("change"));});group.append(button);}select.hidden=true;select.after(group);
     }
-    for(const select of [elements.municipality,elements.specialty]){const details=document.createElement("details");details.className="route-multi";details.dataset.select=select.id;details.innerHTML='<summary></summary><div class="route-multi-options"></div>';select.hidden=true;select.after(details);}
-    document.getElementById("routeMapMunicipality")?.addEventListener("change",event=>selectMunicipality(event.target.value));
+    for(const select of [elements.municipality,elements.specialty,document.getElementById("routeMapMunicipality")].filter(Boolean)){select.multiple=true;const details=document.createElement("details");details.className="route-multi";details.dataset.select=select.id;details.innerHTML='<summary></summary><div class="route-multi-options"></div>';select.hidden=true;select.after(details);}
+    document.getElementById("routeMapMunicipality")?.addEventListener("change",event=>selectMunicipality(selectedValue(event.target)));
     document.getElementById("routeChartPeriod")?.addEventListener("change",event=>{state.chartPeriod=event.target.value;render();});
     for(const id of ["routeDateStart","routeDateEnd"])document.getElementById(id)?.addEventListener("change",()=>{
       const start=document.getElementById("routeDateStart").value,end=document.getElementById("routeDateEnd").value,feedback=document.getElementById("routeDateFeedback");
@@ -929,7 +931,10 @@
     document.addEventListener("click", (event) => {
       const cityControl = event.target.closest("[data-municipality]");
       if (!cityControl) return;
-      selectMunicipality(cityControl.dataset.municipality);
+      const city=cityControl.dataset.municipality;
+      const selected=new Set(state.municipality === "all" ? [] : state.municipality.split("\u001f"));
+      if(selected.has(city))selected.delete(city);else selected.add(city);
+      selectMunicipality([...selected].join("\u001f") || "all");
     });
   }
 
