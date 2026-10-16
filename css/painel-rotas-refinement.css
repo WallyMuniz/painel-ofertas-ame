@@ -96,3 +96,9 @@ html body.page-route-dashboard.has-sidebar .topbar-inner{width:calc(100% - var(-
 .page-route-dashboard .route-map-stage{width:100%;max-width:none;justify-self:stretch}
 .page-route-dashboard .route-map-picker .route-multi{min-width:240px;font-weight:400}
 @media(max-width:900px){.page-route-dashboard .route-map-layout{grid-template-columns:1fr}.page-route-dashboard .route-map-summary{max-height:none}}
+
+/* Checkboxes are compact controls, not full-size form fields. */
+html body.page-route-dashboard .route-multi-options label{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;min-height:36px;margin:0!important;padding:8px 10px!important;text-align:left!important;line-height:1.4;font-weight:400;white-space:normal}
+html body.page-route-dashboard .route-multi-options input[type="checkbox"]{appearance:auto!important;-webkit-appearance:checkbox!important;display:block!important;flex:0 0 16px!important;width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;min-height:16px!important;max-height:16px!important;padding:0!important;margin:0!important;border-radius:4px;box-shadow:none!important;accent-color:#2860ce;cursor:pointer}
+html body.page-route-dashboard .route-multi-options label:hover{background:var(--route-ref-soft);border-radius:7px}
+html body.page-route-dashboard .route-multi-options{padding:6px;scrollbar-width:thin}
