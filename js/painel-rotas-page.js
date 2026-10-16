@@ -4,6 +4,8 @@
     serviceType: "consultas",
     route: "all",
     period: "all",
+    chartPeriod: "latest",
+    dateStart: "", dateEnd: "",
     municipality: "all",
     specialty: "all",
     specialtyExpanded: false,
@@ -127,11 +129,25 @@
     return routeDefinitions.bandeirantes.hotspots[record.municipality] ? "bandeirantes" : "mananciais";
   }
 
+  function matchesSelection(selection, value) {
+    return selection === "all" || selection.split("\u001f").includes(String(value));
+  }
+  function selectedValue(select) {
+    const values = [...select.selectedOptions].map(option => option.value).filter(value => value !== "all");
+    return values.length ? values.join("\u001f") : "all";
+  }
+  function competence(record) { return `${record.year || state.payload.metadata?.year || 2026}-${String(record.month).padStart(2,"0")}`; }
+  function inDateRange(record) {
+    const value=competence(record);
+    return (!state.dateStart || value >= state.dateStart) && (!state.dateEnd || value <= state.dateEnd);
+  }
   function filterRoute(records, route = state.route) {
     return route === "all" ? records : records.filter((record) => routeSlugForRecord(record) === route);
   }
 
   function filterPeriod(records, period = state.period) {
+    if (/^y\d{4}q[1-4]$/.test(period)) return records.filter(record => competence(record).startsWith(period.slice(1,5)) && Math.ceil(Number(record.month)/3) === Number(period.slice(-1)));
+    if (/^\d{4}-\d{2}$/.test(period)) return records.filter(record => competence(record) === period);
     if (/^q[1-4]$/.test(period)) return records.filter((record) => Math.ceil(Number(record.month) / 3) === Number(period.slice(1)));
     if (/^m\d+$/.test(period)) {
       const month = Number(period.slice(1));
@@ -145,8 +161,8 @@
     const useSpecialty = options.ignoreSpecialty ? "all" : state.specialty;
     return filterPeriod(filterRoute(state.payload.records), options.period || state.period).filter((record) =>
       (record.serviceType || "consultas") === state.serviceType &&
-      (useMunicipality === "all" || record.municipality === useMunicipality) &&
-      (useSpecialty === "all" || record.specialty === useSpecialty)
+      matchesSelection(useMunicipality, record.municipality) &&
+      matchesSelection(useSpecialty, record.specialty) && inDateRange(record)
     );
   }
 
@@ -197,25 +213,26 @@
       "beforeend",
       specialties.map((name) => `<option value="${name}">${name}</option>`).join("")
     );
-    if (![...elements.municipality.options].some((option) => option.value === state.municipality)) state.municipality = "all";
-    if (![...elements.specialty.options].some((option) => option.value === state.specialty)) state.specialty = "all";
-    elements.municipality.value = state.municipality;
-    elements.specialty.value = state.specialty;
+    for (const [key, select] of [["municipality",elements.municipality],["specialty",elements.specialty]]) {
+      const existing = state[key].split("\u001f").filter(value => [...select.options].some(option => option.value === value));
+      state[key] = existing.length ? existing.join("\u001f") : "all";
+      for (const option of select.options) option.selected = (state[key] === "all" ? option.value === "all" : option.value !== "all" && matchesSelection(state[key],option.value));
+    }
+    const mapSelect=document.getElementById("routeMapMunicipality");
+    if(mapSelect){mapSelect.innerHTML=elements.municipality.innerHTML;mapSelect.value=state.municipality.includes("\u001f")?"all":state.municipality;}
+    syncFilterControls();
   }
 
   function populatePeriodFilter() {
-    const availableMonths = [...new Set(state.payload.records
-      .filter((record) => (record.serviceType || "consultas") === state.serviceType)
-      .map((record) => Number(record.month)))]
-      .filter((month) => month >= 1 && month <= 12)
-      .sort((a, b) => a - b);
-    elements.period.innerHTML = `
-      <option value="all">Todos os períodos disponíveis</option>
-      ${availableQuarters().map(quarter => `<option value="q${quarter}">${quarter}º trimestre</option>`).join("")}
-      ${availableMonths.map((month) => `<option value="m${month}">${monthNames[month - 1]}</option>`).join("")}
-    `;
-    if (![...elements.period.options].some((option) => option.value === state.period)) state.period = "all";
-    elements.period.value = state.period;
+    const records=state.payload.records.filter(record => (record.serviceType || "consultas") === state.serviceType);
+    const months=[...new Set(records.map(competence))].sort();
+    const quarters=[...new Set(months.map(value => `y${value.slice(0,4)}q${Math.ceil(Number(value.slice(5))/3)}`))].sort();
+    const options=quarters.map(value=>`<option value="${value}">${value.slice(-1)}º trimestre / ${value.slice(1,5)}</option>`).join("") + months.map(value=>`<option value="${value}">${monthNames[Number(value.slice(5))-1]} / ${value.slice(0,4)}</option>`).join("");
+    elements.period.innerHTML='<option value="all">Todos os períodos disponíveis</option>'+options;
+    if(![...elements.period.options].some(option=>option.value===state.period))state.period="all";
+    elements.period.value=state.period;
+    const chart=document.getElementById("routeChartPeriod");
+    if(chart){chart.innerHTML='<option value="latest">Último trimestre com dados</option><option value="filters">Seguir filtros do painel</option>'+options;chart.value=state.chartPeriod;if(!chart.value)state.chartPeriod=chart.value="latest";}
   }
 
   function renderKpis(records) {
@@ -236,7 +253,7 @@
   function renderMap(records) {
     const summary = aggregate(records);
     const routeConfig = routeDefinitions[state.route] || routeDefinitions.all;
-    const selected = state.municipality === "all" ? routeConfig.label : state.municipality;
+    const selected = state.municipality === "all" ? routeConfig.label : state.municipality.split("\u001f").join(", ");
     setText("routeSelectedTitle", selected);
     setText(
       "routeSelectedDescription",
@@ -258,7 +275,7 @@
     if (elements.mapHotspots) {
       elements.mapHotspots.innerHTML = Object.entries(routeConfig.hotspots).map(([municipality, position]) => `
         <button
-          class="route-map-hotspot${municipality === state.municipality ? " is-active" : ""}"
+          class="route-map-hotspot${matchesSelection(state.municipality, municipality) ? " is-active" : ""}"
           type="button"
           style="left:${position[0]}%;top:${position[1]}%"
           data-municipality="${municipality}"
@@ -272,7 +289,7 @@
       .map(([municipality, values]) => ({ municipality, ...aggregate(values) }))
       .sort((a, b) => a.municipality.localeCompare(b.municipality, "pt-BR"));
     elements.cityList.innerHTML = cityGroups.map((city) => `
-      <button class="route-city-button${city.municipality === state.municipality ? " is-active" : ""}" type="button" data-municipality="${city.municipality}">
+      <button class="route-city-button${matchesSelection(state.municipality, city.municipality) ? " is-active" : ""}" type="button" data-municipality="${city.municipality}">
         <span>${city.municipality}</span>
         <small>${formatPercent(city.absenteeismRate)}</small>
       </button>
@@ -299,8 +316,8 @@
     container.innerHTML = availableQuarters().map((quarter) => {
       let records = filterPeriod(filterRoute(state.payload.records), `q${quarter}`)
         .filter((record) => (record.serviceType || "consultas") === state.serviceType);
-      if (state.municipality !== "all") records = records.filter((record) => record.municipality === state.municipality);
-      if (state.specialty !== "all") records = records.filter((record) => record.specialty === state.specialty);
+      if (state.municipality !== "all") records = records.filter((record) => matchesSelection(state.municipality, record.municipality));
+      if (state.specialty !== "all") records = records.filter((record) => matchesSelection(state.specialty, record.specialty));
       const summary = aggregate(records);
       const periodLabel = quarterPeriodLabel(quarter, records);
       if (!records.length) return `<article class="route-quarter-card"><h3>${quarter}º trimestre<small>${periodLabel}</small></h3><p>Sem dados importados para os filtros selecionados.</p></article>`;
@@ -317,24 +334,20 @@
   }
 
   function monthlySeries() {
-    const base = filterRoute(state.payload.records).filter((record) =>
-      (record.serviceType || "consultas") === state.serviceType &&
-      (state.municipality === "all" || record.municipality === state.municipality) &&
-      (state.specialty === "all" || record.specialty === state.specialty)
-    );
-    const groups = groupBy(base, "month");
-    const lastMonth = Math.max(1, Number(state.payload.metadata?.lastClosedMonth || 5));
-    return Array.from({ length: lastMonth }, (_value, index) => index + 1).map((month) => {
-      const records = groups.get(month) || [];
-      const summary = aggregate(records);
-      return { month, label: records[0]?.monthShort || monthLabels[month - 1], ...summary };
-    });
+    let base=getFilteredRecords({period:state.chartPeriod === "filters" ? state.period : "all"});
+    if(state.chartPeriod === "latest") {
+      const last=base.map(competence).sort().at(-1);
+      if(last)base=filterPeriod(base,`y${last.slice(0,4)}q${Math.ceil(Number(last.slice(5))/3)}`);
+    } else if(state.chartPeriod !== "filters") base=filterPeriod(base,state.chartPeriod);
+    const groups=groupBy(base.map(record=>({...record,competence:competence(record)})),"competence");
+    return [...groups].sort(([a],[b])=>a.localeCompare(b)).map(([key,records])=>({month:Number(key.slice(5)),label:`${monthLabels[Number(key.slice(5))-1]}/${key.slice(2,4)}`,...aggregate(records)}));
   }
 
   function renderVolumeChart(series) {
     const container = document.getElementById("routeVolumeChart");
+    if(!series.length){container.innerHTML="<p class=\"route-empty-chart\">Sem dados para o período selecionado.</p>";return;}
     const maxValue = Math.max(1, ...series.flatMap((item) => [item.offered, item.scheduledWithPool, item.performed]));
-    container.style.gridTemplateColumns = `repeat(${Math.max(1, series.length)}, minmax(56px, 1fr))`;
+    container.style.gridTemplateColumns = `repeat(${Math.max(1, series.length)}, minmax(140px, 1fr))`;
     container.innerHTML = series.map((item) => `
       <div class="route-volume-month">
         <div class="route-volume-bars">
@@ -349,6 +362,7 @@
 
   function renderRateChart(series) {
     const container = document.getElementById("routeRateChart");
+    if(!series.length){container.innerHTML="<p class=\"route-empty-chart\">Sem dados para o período selecionado.</p>";return;}
     const width = 640;
     const height = 280;
     const left = 18;
@@ -434,6 +448,7 @@
     renderVolumeChart(series);
     renderRateChart(series);
     renderTables();
+    syncFilterControls();
   }
 
   function setImportFeedback(message, tone = "neutral") {
@@ -813,11 +828,37 @@
 
   function selectMunicipality(value) {
     state.municipality = value || "all";
-    elements.municipality.value = state.municipality;
+    for(const option of elements.municipality.options)option.selected=state.municipality === "all" ? option.value === "all" : matchesSelection(state.municipality,option.value);
     render();
   }
 
+  function syncFilterControls() {
+    document.querySelectorAll(".route-segmented button").forEach(button=>button.setAttribute("aria-pressed",String(document.getElementById(button.dataset.select).value===button.dataset.value)));
+    document.querySelectorAll(".route-multi").forEach(control=>{
+      const select=document.getElementById(control.dataset.select);
+      const values=[...select.selectedOptions].filter(option=>option.value!=="all");
+      control.querySelector("summary").textContent=values.length ? `${values.length} selecionado(s)` : select.options[0].textContent;
+      const list=control.querySelector(".route-multi-options");list.replaceChildren();
+      for(const option of select.options){if(option.value==="all")continue;const label=document.createElement("label"),input=document.createElement("input");input.type="checkbox";input.checked=values.some(value=>value.value===option.value);input.addEventListener("change",()=>{option.selected=input.checked;select.options[0].selected=![...select.options].some(o=>o.value!=="all"&&o.selected);select.dispatchEvent(new Event("change"));});label.append(input,document.createTextNode(option.textContent));list.append(label);}
+    });
+    const map=document.getElementById("routeMapMunicipality");if(map)map.value=state.municipality.includes("\u001f")?"all":state.municipality;
+  }
+  function setupFilterControls(){
+    for(const select of [elements.serviceType,elements.route]){
+      const group=document.createElement("div");group.className="route-segmented";group.setAttribute("role","group");group.setAttribute("aria-label",select.previousElementSibling.textContent);
+      for(const option of select.options){const button=document.createElement("button");button.type="button";button.textContent=option.textContent.replace("Rota dos ","");button.dataset.select=select.id;button.dataset.value=option.value;button.addEventListener("click",()=>{select.value=option.value;select.dispatchEvent(new Event("change"));});group.append(button);}select.hidden=true;select.after(group);
+    }
+    for(const select of [elements.municipality,elements.specialty]){const details=document.createElement("details");details.className="route-multi";details.dataset.select=select.id;details.innerHTML='<summary></summary><div class="route-multi-options"></div>';select.hidden=true;select.after(details);}
+    document.getElementById("routeMapMunicipality")?.addEventListener("change",event=>selectMunicipality(event.target.value));
+    document.getElementById("routeChartPeriod")?.addEventListener("change",event=>{state.chartPeriod=event.target.value;render();});
+    for(const id of ["routeDateStart","routeDateEnd"])document.getElementById(id)?.addEventListener("change",()=>{
+      const start=document.getElementById("routeDateStart").value,end=document.getElementById("routeDateEnd").value,feedback=document.getElementById("routeDateFeedback");
+      if(start&&end&&start>end){feedback.textContent="A competência final deve ser igual ou posterior à inicial.";return;}feedback.textContent="";state.dateStart=start;state.dateEnd=end;state.period="all";elements.period.value="all";render();
+    });
+    syncFilterControls();
+  }
   function bindEvents() {
+    setupFilterControls();
     elements.serviceType.addEventListener("change", () => {
       state.serviceType = elements.serviceType.value;
       state.municipality = "all";
@@ -837,9 +878,9 @@
       state.period = elements.period.value;
       render();
     });
-    elements.municipality.addEventListener("change", () => selectMunicipality(elements.municipality.value));
+    elements.municipality.addEventListener("change", () => selectMunicipality(selectedValue(elements.municipality)));
     elements.specialty.addEventListener("change", () => {
-      state.specialty = elements.specialty.value;
+      state.specialty = selectedValue(elements.specialty);
       render();
     });
     if (elements.specialtyToggle) {
@@ -849,6 +890,9 @@
       });
     }
     elements.clear.addEventListener("click", () => {
+      state.dateStart = state.dateEnd = "";
+      state.chartPeriod="latest";
+      document.getElementById("routeDateStart").value="";document.getElementById("routeDateEnd").value="";document.getElementById("routeChartPeriod").value="latest";
       state.serviceType = "consultas";
       state.period = "all";
       state.route = "all";
@@ -859,6 +903,7 @@
       elements.route.value = "all";
       elements.municipality.value = "all";
       elements.specialty.value = "all";
+      populatePeriodFilter();populateFilters();
       render();
     });
     elements.showAll.addEventListener("click", () => selectMunicipality("all"));

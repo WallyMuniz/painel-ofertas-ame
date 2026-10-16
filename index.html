@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./css/base.css?v=20260915-layout1">
   <link rel="stylesheet" href="./css/painel-rotas.css?v=20260804-dark-components1">
   <link rel="stylesheet" href="./css/portal-layout.css?v=20260915-margins1">
-  <link rel="stylesheet" href="./css/painel-rotas-refinement.css?v=20261013-5">
+  <link rel="stylesheet" href="./css/painel-rotas-refinement.css?v=20261016-filters1">
 </head>
 
 <body class="page-route-dashboard page-loaded portal-sidebar-disabled">
@@ -79,17 +79,17 @@
         </div>
         <div class="route-filter-field">
           <label for="routeMunicipalityFilter">Município</label>
-          <select id="routeMunicipalityFilter">
+          <select id="routeMunicipalityFilter" multiple>
             <option value="all">Todos os municípios</option>
           </select>
         </div>
         <div class="route-filter-field route-filter-specialty">
           <label for="routeSpecialtyFilter">Especialidade / exame</label>
-          <select id="routeSpecialtyFilter">
+          <select id="routeSpecialtyFilter" multiple>
             <option value="all">Todos os procedimentos</option>
           </select>
         </div>
-        <button id="routeClearFilters" class="route-clear-button" type="button">Limpar filtros</button>
+        <div class="route-date-range"><label>Intervalo de competências</label><div><input type="month" id="routeDateStart" aria-label="Competência inicial"><span>até</span><input type="month" id="routeDateEnd" aria-label="Competência final"></div><small id="routeDateFeedback" role="status"></small></div><button id="routeClearFilters" class="route-clear-button" type="button">Limpar filtros</button>
       </section>
 
       
@@ -133,7 +133,7 @@
             <span class="route-section-kicker">Mapa da rota</span>
             <h2>Selecione um município</h2>
           </div>
-          <button id="routeShowAllMunicipalities" class="route-text-button" type="button">Visualizar rota completa</button>
+          <label class="route-map-picker">Município no mapa<select id="routeMapMunicipality"><option value="all">Todos os municípios</option></select></label><button id="routeShowAllMunicipalities" class="route-text-button" type="button">Visualizar rota completa</button>
         </div>
 
         <div class="route-map-layout">
@@ -188,7 +188,7 @@
               <span><i class="legend-performed"></i>Realizado</span>
             </div>
           </div>
-          <div class="route-volume-chart" id="routeVolumeChart"></div>
+          <label class="route-chart-period">Período do gráfico<select id="routeChartPeriod"><option value="latest">Último trimestre com dados</option><option value="filters">Seguir filtros do painel</option></select></label><div class="route-volume-chart" id="routeVolumeChart"></div>
         </article>
 
         <article class="route-chart-panel">
@@ -250,11 +250,12 @@
         </div>
         <div>
           <strong>Fonte</strong>
-          <span>Planilhas municipais de consultas e exames • atualização piloto 2026.</span>
+          <span>SIRESP — Base do Governo do Estado de São Paulo.</span>
         </div>
       </section>
     </div>
   </main>
+  <footer class="route-footer">© AME Itapevi <span>Desenvolvido por Wally Silva de Jesus</span></footer>
 
   <script src="./js/painel-rotas-page.js"></script>
   <script src="./js/theme-toggle.js"></script>
